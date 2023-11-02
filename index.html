@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <style>
+        /* Add a fixed height and overflow for the table container */
+        #google-table-container {
+            height: 750px; /* Set your desired height here */
+            overflow: auto;
+        }
+
+        /* Add styling to make the table header sticky when scrolling */
+        #google-table th {
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+        }
+    </style>
+
+    <title>Web Page Layout</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class="menu">
+                <li id="file-menu"><a href="#">File</a>
+                    <ul class="submenu">
+                        <li id="load-csv-file"><a href="#">Load CSV file</a></li>
+                        <li id="login-to-db"><a href="#">Login to DB</a></li>
+                        <li id="logout-db"><a href="#">Logout DB</a></li>
+                        <li><a href="#">Exit</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">View</a>
+                    <ul class="submenu">
+                        <li><a href="#">Line</a></li>
+                        <li><a href="#">Pie</a></li>
+                        <li><a href="#">Bar</a></li>
+                        <li><a href="#">Map</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Setting</a>
+                    <ul class="submenu">
+                        <li><a href="#">User Info</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Help</a>
+                    <ul class="submenu">
+                        <li><a href="#">Info</a></li>
+                        <li><a href="#">Client</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="graph-display">
+            <!-- Graph display area content goes here -->
+        </section>
+        <section id="data-selection">
+            <!-- Data selection content goes here -->
+        </section>
+        <section id="message-area">
+            <!-- Message area content goes here -->
+        </section>
+        <section id="google-table-container">
+            <div id="google-table"></div>
+        </section>
+    </main>
+    <input type="file" id="file-input" accept=".csv" style="display: none;">
+    <script src="script.js"></script>
+</body>
+</html>
