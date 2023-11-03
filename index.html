@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
 
     <style>
         /* Add a fixed height and overflow for the table container */
@@ -33,17 +34,19 @@
                         <li id="load-csv-file"><a href="#">Load CSV file</a></li>
                         <li id="login-to-db"><a href="#">Login to DB</a></li>
                         <li id="logout-db"><a href="#">Logout DB</a></li>
-                        <li><a href="#">Exit</a></li>
+                        <li id="exit-app"><a href="#">Exit</a></li>
                     </ul>
                 </li>
-                <li><a href="#">View</a>
+                <li id="view-menu"><a href="#">View</a>
                     <ul class="submenu">
-                        <li><a href="#">Line</a></li>
-                        <li><a href="#">Pie</a></li>
-                        <li><a href="#">Bar</a></li>
-                        <li><a href="#">Map</a></li>
+                        <li id="line-submenu"><a href="#">Line</a></li>
+                        <li id="pie-submenu"><a href="#">Pie</a></li>
+                        <li id="bar-submenu"><a href="#">Bar</a></li>
+                        <li id="map-submenu"><a href="#">Map</a></li>
                     </ul>
                 </li>
+                
+                          
                 <li><a href="#">Setting</a>
                     <ul class="submenu">
                         <li><a href="#">User Info</a></li>
@@ -63,8 +66,19 @@
             <!-- Graph display area content goes here -->
         </section>
         <section id="data-selection">
-            <!-- Data selection content goes here -->
+            <p>Please select one of the following choices, and then run one of the graphs in the View menu. Note: The empty, NULL, or NaN values will be excluded.</p>
+            
+            <input type="radio" id="deaths-radio" name="graph-choice" value="Deaths">
+            <label for="deaths-radio">Deaths (Bar, Line)</label>
+
+            <input type="radio" id="total-test-results-radio" name="graph-choice" value="Total Test Results">
+            <label for="total-test-results-radio">Total Test Results (Bar, Line)</label>
+
+            <input type="radio" id="state-radio" name="graph-choice" value="State">
+            <label for="state-radio">State (Bar, Pie)</label>
+
         </section>
+        
         <section id="message-area">
             <!-- Message area content goes here -->
         </section>

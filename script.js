@@ -1,4 +1,8 @@
-// Function to load and display the specific columns from the CSV data using Google Table
+// Initialize Google Charts with the required packages
+google.charts.load('current', { 'packages': ['corechart', 'table'] });
+
+let dataTable; // Declare dataTable globally
+
 function loadCSVData(file) {
     const reader = new FileReader();
     reader.onload = function (e) {
@@ -14,7 +18,7 @@ function loadCSVData(file) {
                 if (data.length > 0) {
                     // Map the specific columns you want to display
                     const filteredData = data.map(row => ({
-                        'date': row.date,
+                        'date': new Date(row.date), // Convert to Date object
                         'state': row.state,
                         'death': parseFloat(row.death),
                         'deathConfirmed': parseFloat(row.deathConfirmed),
@@ -26,11 +30,10 @@ function loadCSVData(file) {
                         'totalTestResults': parseFloat(row.totalTestResults)
                     }));
 
-                    // Display the filtered data
-                    document.getElementById('message-area').innerText = '';
-                    const dataTable = new google.visualization.DataTable();
-                    dataTable.addColumn('string', 'Date');
-                    dataTable.addColumn('string', 'State');
+                    // Initialize dataTable
+                    dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn('date', 'Date'); // Use 'date' type
+                    dataTable.addColumn('string', 'State'); // Use 'string' type
                     dataTable.addColumn('number', 'Death');
                     dataTable.addColumn('number', 'Death Confirmed');
                     dataTable.addColumn('number', 'Death Increase');
@@ -55,9 +58,15 @@ function loadCSVData(file) {
                         ]);
                     });
 
+                    // Display the filtered data and the number of records
                     const table = new google.visualization.Table(document.getElementById('google-table'));
                     table.draw(dataTable, { showRowNumber: true });
-                    document.getElementById('message-area').innerText = `Number of records: ${dataTable.getNumberOfRows()}`;
+                    document.getElementById('message-area').innerText = `Number of records: ${filteredData.length}`;
+
+                    // Now that the table is loaded, call generateGoogleChart
+                    const selectedDataChoice = getSelectedDataChoice();
+                    const chartType = 'line'; // Change this to 'line' or 'bar' as needed
+                    generateGoogleChart(selectedDataChoice, chartType);
                 } else {
                     // No data in the CSV
                     document.getElementById('google-table').innerHTML = '';
@@ -89,13 +98,81 @@ fileInput.addEventListener('change', (e) => {
     }
 });
 
-// Initialize Google Charts
-google.charts.load('current', { 'packages': ['table'] });
-google.charts.setOnLoadCallback(() => {
-    // Code inside this callback function will run when Google Charts is ready
-    // This is where we create and draw the table
-});
+/// Define and implement the generateGoogleChart function
+function generateGoogleChart(dataChoice, chartType) {
+    if (!dataTable) {
+        displayMessage("Data table is not defined.");
+        return;
+    }
 
+    // Ensure the chart is using the correct data columns for the "Deaths" category
+    let columnsToDisplay = ["Date", "State", "Death", "DeathConfirmed"]; // Remove spaces from column names
+    if (dataChoice !== "Deaths") {
+        displayMessage(`Unsupported data choice: ${dataChoice}`);
+        return;
+    }
+
+    const columnIndices = columnsToDisplay.map(column => getColumnIndex(column));
+
+    if (columnIndices.some(index => index === -1)) {
+        displayMessage("One or more columns not found in the data table.");
+        return;
+    }
+
+    // Define the DataTable structure for the chart
+    const chartData = new google.visualization.DataTable();
+
+    // Extract the data from the dataTable
+    const chartDataTable = [];
+    const numRows = dataTable.getNumberOfRows();
+    for (let i = 0; i < numRows; i++) {
+        const data = columnIndices.map(index => dataTable.getValue(i, index));
+        chartDataTable.push(data);
+    }
+
+    // Add columns to the DataTable
+    columnsToDisplay.forEach(column => {
+        chartData.addColumn(typeof dataTable.getValue(0, getColumnIndex(column)), column);
+    });
+
+    // Set the data in the DataTable
+    chartData.addRows(chartDataTable);
+
+    // Set chart options
+    const chartOptions = {
+        title: `Data Visualization for ${dataChoice}`,
+        height: 400,
+    };
+
+    let chart;
+    switch (chartType) {
+        case 'line':
+            chart = new google.visualization.LineChart(document.getElementById('graph-display'));
+            break;
+        case 'bar':
+            chart = new google.visualization.BarChart(document.getElementById('graph-display'));
+            break;
+        default:
+            displayMessage(`Unsupported chart type: ${chartType}`);
+            return;
+    }
+
+    chart.draw(chartData, chartOptions);
+}
+
+
+
+
+// Helper function to get the column index from the DataTable
+function getColumnIndex(columnName) {
+    const numCols = dataTable.getNumberOfColumns();
+    for (let i = 0; i < numCols; i++) {
+        if (dataTable.getColumnLabel(i) === columnName) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     // Function to display a login dialog and authenticate the user
@@ -113,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     const response = JSON.parse(xhr.responseText);
                     if (response.success) {
                         // Authentication successful
-                        // Store user information in browser
+                        // Store user information in the browser
                         localStorage.setItem('user_info', JSON.stringify(response.user_info));
                         document.getElementById('message-area').innerText = `Welcome, ${response.user_info.name}!`;
                     } else {
@@ -142,6 +219,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Handle the "Logout DB" click event
     document.getElementById('logout-db').addEventListener('click', logoutDB);
 
+    // Handle the "Exit" click event
+    document.getElementById('exit-app').addEventListener('click', function () {
+        // Close the current browser tab or window
+        window.close();
+    });
+
     // Check if the user is logged in on page load
     const storedUserInfo = localStorage.getItem('user_info');
     if (storedUserInfo) {
@@ -149,3 +232,58 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('message-area').innerText = `Welcome, ${userInfo.name}!`;
     }
 });
+
+// Function to display a message in the graph area
+function displayMessage(message) {
+    document.getElementById('graph-display').innerHTML = `<p>${message}</p>`;
+}
+
+
+// Function to handle the sub-menu click event in the "View" menu
+function viewSubMenuClickHandler(event) {
+    // Check if data is loaded
+    const table = document.getElementById('google-table');
+    if (!table || table.getElementsByTagName('tr').length <= 1) {
+        document.getElementById('message-area').innerText = "Please load data first";
+        return;
+    }
+
+    const selectedDataChoice = getSelectedDataChoice();
+    const chartType = event.target.innerText.toLowerCase();
+
+    // Check if the selected chart type is allowed for the data choice
+    if (isChartAllowed(selectedDataChoice, chartType)) {
+        generateGoogleChart(selectedDataChoice, chartType);
+    } else {
+        document.getElementById('message-area').innerText = `Chart type '${chartType}' is not allowed for '${selectedDataChoice}' data`;
+    }
+}
+
+// Add event listeners to submenu items under the "View" menu
+const viewSubMenuItems = document.querySelectorAll('#view-menu .submenu li');
+for (const subMenuItem of viewSubMenuItems) {
+    subMenuItem.addEventListener('click', viewSubMenuClickHandler);
+}
+
+// Helper function to get the selected data choice from the radio buttons
+function getSelectedDataChoice() {
+    const dataChoiceRadios = document.getElementsByName('graph-choice');
+    for (const radio of dataChoiceRadios) {
+        if (radio.checked) {
+            return radio.value;
+        }
+    }
+    return null;
+}
+
+// Helper function to check if the chart is allowed for the selected data choice
+function isChartAllowed(dataChoice, chartType) {
+    // Define which chart types are allowed for each data choice
+    const allowedCharts = {
+        'Deaths': ['bar', 'line'],
+        'Total Test Results': ['bar', 'line'],
+        'State': ['bar', 'pie'],
+    };
+
+    return allowedCharts[dataChoice] && allowedCharts[dataChoice].includes(chartType);
+}
