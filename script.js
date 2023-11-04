@@ -384,4 +384,38 @@ function preparePieChartDataState(data) {
 }
 
 
+
+// Event listener for the "Client" submenu
+const clientInfoMenuItem = document.getElementById("client-info");
+clientInfoMenuItem.addEventListener("click", function () {
+    // Get browser and OS information
+    const browserInfo = `Browser: ${window.navigator.appName} ${window.navigator.appVersion}`;
+    const osInfo = `OS: ${window.navigator.platform}`;
+
+    // Check if cookies and Java are enabled
+    const cookiesEnabled = `Cookies enabled: ${navigator.cookieEnabled ? "Yes" : "No"}`;
+    const javaEnabled = `Java enabled: ${navigator.javaEnabled() ? "Yes" : "No"}`;
+
+    // Combine all information with each item on a separate line
+    const userInfo = `
+        <p>${browserInfo}</p>
+        <p>${osInfo}</p>
+        <p>${cookiesEnabled}</p>
+        <p>${javaEnabled}</p>
+    `;
+
+    // Display the custom popup
+    const popup = document.getElementById("custom-popup");
+    const popupText = document.getElementById("popup-text");
+    popupText.innerHTML = userInfo; // Use innerHTML to interpret the HTML tags
+    popup.style.display = "block";
+
+    // Event listener to close the popup
+    const closeBtn = document.getElementById("close-popup");
+    closeBtn.addEventListener("click", function () {
+        popup.style.display = "none";
+    });
+});
+
+
 });
