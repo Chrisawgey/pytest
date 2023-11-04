@@ -1,33 +1,31 @@
 <?php
-include "dbconfig.php";
+include './dbconfig.php'; // Include the database configuration
 
-// Check if the request method is POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $conn = new mysqli($host, $username, $password, $dbname);
+$postData = json_decode(file_get_contents("php://input"), true);
+$username = $postData["userName"];
+$password = $postData["userPassword"];
 
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+$sql = "SELECT uid, login, name, gender FROM DV_User WHERE login = ? AND password = ?";
+$stmt = $connection->prepare($sql);
+$stmt->bind_param("ss", $username, $password);
+$stmt->execute();
+$result = $stmt->get_result();
 
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-
-    $query = "SELECT uid, login, gender, name from datamining.DV_User where login = '$username' and password ='$password'";
-
-    $result = $conn->query($query);
-
-    if ($result->num_rows > 0) {
-        $user_info = $result->fetch_assoc();
-        // Authentication successful
-        $response = array("success" => true, "user_info" => $user_info);
-        echo json_encode($response);
-    } else {
-        // Authentication failed
-        $response = array("success" => false, "message" => "Login failed. Invalid credentials.");
-        echo json_encode($response);
-    }
-
-    // Close the database connection
-    $conn->close();
+if ($result->num_rows === 1) {
+    $row = $result->fetch_assoc();
+    $response = [
+        "success" => true,
+        "uid" => $row["uid"],
+        "login" => $row["login"],
+        "name" => $row["name"],
+        "gender" => $row["gender"]
+    ];
+} else {
+    $response = ["success" => false];
 }
+
+header("Content-Type: application/json");
+echo json_encode($response);
+
+$stmt->close();
 ?>

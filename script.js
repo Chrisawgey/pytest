@@ -21,12 +21,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Event listener for file input change
     fileInput.addEventListener("change", function (event) {
+        //Prevents from adding more than one file!
         const file = event.target.files[0];
 
+        //Checks whether a variable name 'file' exists
         if (file) {
+            //Checks if file exists condition is true if so it will run whatever is in the {...}
             Papa.parse(file, {
                 header: true,
+                //specifies that PapaParse should automatically convert data types where appropriate, such as converting numeric strings to numbers.
                 dynamicTyping: true,
+                //When parsing is complete it will run the (results) Function which is displaying the table
                 complete: function (results) {
                     const data = results.data;
                     displayGoogleTable(data);
@@ -418,4 +423,63 @@ clientInfoMenuItem.addEventListener("click", function () {
 });
 
 
+
+
+
+ // Function to display a login popup
+ function displayLoginPopup() {
+    const username = prompt("Enter your login:");
+    const password = prompt("Enter your password:");
+
+    if (username && password) {
+        // Prepare the data to send in the request
+        const data = {
+            userName: username,
+            userPassword: password,
+        };
+
+        // Send an AJAX request to the login.php file
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "login.php", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+
+                if (response.success) {
+                    // Login successful, store user information and show a welcome message
+                    sessionStorage.setItem("user", JSON.stringify(response));
+                    messageArea.textContent = `Welcome, ${response.name}!`;
+                } else {
+                    // Login failed, display an error message
+                    messageArea.textContent = "Login failed. Please check your credentials.";
+                }
+            }
+        };
+
+        xhr.send(JSON.stringify(data));
+    }
+}
+
+// Function to display a confirmation popup for logout
+function displayLogoutPopup() {
+    const confirmLogout = confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+        // Clear user information and display a "Successful logout" message
+        sessionStorage.removeItem("user");
+        messageArea.textContent = "Successful logout.";
+    }
+}
+
+// Event listener for the "Login to DB" sub-menu
+const loginToDBMenuItem = document.getElementById("login-to-db");
+loginToDBMenuItem.addEventListener("click", displayLoginPopup);
+
+// Event listener for the "Logout DB" sub-menu
+const logoutDBMenuItem = document.getElementById("logout-db");
+logoutDBMenuItem.addEventListener("click", displayLogoutPopup);
+
 });
+
+
+
