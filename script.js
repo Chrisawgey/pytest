@@ -1,289 +1,320 @@
-// Initialize Google Charts with the required packages
-google.charts.load('current', { 'packages': ['corechart', 'table'] });
-
-let dataTable; // Declare dataTable globally
-
-function loadCSVData(file) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const csvText = e.target.result;
-
-        // Use PapaParse to parse the CSV data
-        Papa.parse(csvText, {
-            header: true,  // Treat the first row as column headers
-            skipEmptyLines: true,  // Skip empty lines
-            complete: function (results) {
-                const data = results.data;
-
-                if (data.length > 0) {
-                    // Map the specific columns you want to display
-                    const filteredData = data.map(row => ({
-                        'date': new Date(row.date), // Convert to Date object
-                        'state': row.state,
-                        'death': parseFloat(row.death),
-                        'deathConfirmed': parseFloat(row.deathConfirmed),
-                        'deathIncrease': parseFloat(row.deathIncrease),
-                        'hospitalizedCurrently': parseFloat(row.hospitalizedCurrently),
-                        'hospitalizedIncrease': parseFloat(row.hospitalizedIncrease),
-                        'positive': parseFloat(row.positive),
-                        'positiveIncrease': parseFloat(row.positiveIncrease),
-                        'totalTestResults': parseFloat(row.totalTestResults)
-                    }));
-
-                    // Initialize dataTable
-                    dataTable = new google.visualization.DataTable();
-                    dataTable.addColumn('date', 'Date'); // Use 'date' type
-                    dataTable.addColumn('string', 'State'); // Use 'string' type
-                    dataTable.addColumn('number', 'Death');
-                    dataTable.addColumn('number', 'Death Confirmed');
-                    dataTable.addColumn('number', 'Death Increase');
-                    dataTable.addColumn('number', 'Hospitalized Currently');
-                    dataTable.addColumn('number', 'Hospitalized Increase');
-                    dataTable.addColumn('number', 'Positive');
-                    dataTable.addColumn('number', 'Positive Increase');
-                    dataTable.addColumn('number', 'Total Test Results');
-
-                    filteredData.forEach(row => {
-                        dataTable.addRow([
-                            row.date,
-                            row.state,
-                            row.death,
-                            row.deathConfirmed,
-                            row.deathIncrease,
-                            row.hospitalizedCurrently,
-                            row.hospitalizedIncrease,
-                            row.positive,
-                            row.positiveIncrease,
-                            row.totalTestResults
-                        ]);
-                    });
-
-                    // Display the filtered data and the number of records
-                    const table = new google.visualization.Table(document.getElementById('google-table'));
-                    table.draw(dataTable, { showRowNumber: true });
-                    document.getElementById('message-area').innerText = `Number of records: ${filteredData.length}`;
-
-                    // Now that the table is loaded, call generateGoogleChart
-                    const selectedDataChoice = getSelectedDataChoice();
-                    const chartType = 'line'; // Change this to 'line' or 'bar' as needed
-                    generateGoogleChart(selectedDataChoice, chartType);
-                } else {
-                    // No data in the CSV
-                    document.getElementById('google-table').innerHTML = '';
-                    document.getElementById('message-area').innerText = "No data found in the CSV file.";
-                }
-            },
-            error: function (error) {
-                // Error parsing the CSV
-                document.getElementById('google-table').innerHTML = '';
-                document.getElementById('message-area').innerText = "Error loading the CSV file.";
-            }
-        });
-    };
-
-    reader.readAsText(file);
-}
-
-// Handle file input and trigger data loading
-const fileInput = document.getElementById('file-input');
-
-document.getElementById('load-csv-file').addEventListener('click', () => {
-    fileInput.click();
-});
-
-fileInput.addEventListener('change', (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-        loadCSVData(selectedFile);
-    }
-});
-
-/// Define and implement the generateGoogleChart function
-function generateGoogleChart(dataChoice, chartType) {
-    if (!dataTable) {
-        displayMessage("Data table is not defined.");
-        return;
-    }
-
-    // Ensure the chart is using the correct data columns for the "Deaths" category
-    let columnsToDisplay = ["Date", "State", "Death", "DeathConfirmed"]; // Remove spaces from column names
-    if (dataChoice !== "Deaths") {
-        displayMessage(`Unsupported data choice: ${dataChoice}`);
-        return;
-    }
-
-    const columnIndices = columnsToDisplay.map(column => getColumnIndex(column));
-
-    if (columnIndices.some(index => index === -1)) {
-        displayMessage("One or more columns not found in the data table.");
-        return;
-    }
-
-    // Define the DataTable structure for the chart
-    const chartData = new google.visualization.DataTable();
-
-    // Extract the data from the dataTable
-    const chartDataTable = [];
-    const numRows = dataTable.getNumberOfRows();
-    for (let i = 0; i < numRows; i++) {
-        const data = columnIndices.map(index => dataTable.getValue(i, index));
-        chartDataTable.push(data);
-    }
-
-    // Add columns to the DataTable
-    columnsToDisplay.forEach(column => {
-        chartData.addColumn(typeof dataTable.getValue(0, getColumnIndex(column)), column);
-    });
-
-    // Set the data in the DataTable
-    chartData.addRows(chartDataTable);
-
-    // Set chart options
-    const chartOptions = {
-        title: `Data Visualization for ${dataChoice}`,
-        height: 400,
-    };
-
-    let chart;
-    switch (chartType) {
-        case 'line':
-            chart = new google.visualization.LineChart(document.getElementById('graph-display'));
-            break;
-        case 'bar':
-            chart = new google.visualization.BarChart(document.getElementById('graph-display'));
-            break;
-        default:
-            displayMessage(`Unsupported chart type: ${chartType}`);
-            return;
-    }
-
-    chart.draw(chartData, chartOptions);
-}
-
-
-
-
-// Helper function to get the column index from the DataTable
-function getColumnIndex(columnName) {
-    const numCols = dataTable.getNumberOfColumns();
-    for (let i = 0; i < numCols; i++) {
-        if (dataTable.getColumnLabel(i) === columnName) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 document.addEventListener("DOMContentLoaded", function () {
-    // Function to display a login dialog and authenticate the user
-    function loginToDB() {
-        const username = prompt("Enter your username:");
-        const password = prompt("Enter your password:");
+    const fileInput = document.getElementById("file-input");
+    const googleTableContainer = document.getElementById("google-table-container");
+    const messageArea = document.getElementById("message-area");
+    let loadedData = null; // Track loaded data
+    let selectedGraph = null; // Track selected radio button
+    let chartContainer = document.getElementById("chart-container"); // Element for the chart
+    let chartErrorMessage = document.getElementById("chart-error-message"); // New element for the error message
 
-        if (username && password) {
-            // Send an HTTP request to the server for authentication
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'login.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        // Authentication successful
-                        // Store user information in the browser
-                        localStorage.setItem('user_info', JSON.stringify(response.user_info));
-                        document.getElementById('message-area').innerText = `Welcome, ${response.user_info.name}!`;
-                    } else {
-                        // Authentication failed
-                        document.getElementById('message-area').innerText = "Login failed. Invalid credentials.";
-                    }
-                }
-            };
-            const data = `username=${username}&password=${password}`;
-            xhr.send(data);
-        }
-    }
-
-    // Function to log out the user
-    function logoutDB() {
-        if (confirm("Are you sure you want to log out?")) {
-            // Clear user information from the browser
-            localStorage.removeItem('user_info');
-            document.getElementById('message-area').innerText = "Successful logout";
-        }
-    }
-
-    // Handle the "Login to DB" click event
-    document.getElementById('login-to-db').addEventListener('click', loginToDB);
-
-    // Handle the "Logout DB" click event
-    document.getElementById('logout-db').addEventListener('click', logoutDB);
-
-    // Handle the "Exit" click event
-    document.getElementById('exit-app').addEventListener('click', function () {
-        // Close the current browser tab or window
-        window.close();
+    // Load the Google Charts library and set callback
+    google.charts.load("current", { packages: ["corechart", "table"] });
+    google.charts.setOnLoadCallback(function () {
+        // All your chart creation functions
     });
 
-    // Check if the user is logged in on page load
-    const storedUserInfo = localStorage.getItem('user_info');
-    if (storedUserInfo) {
-        const userInfo = JSON.parse(storedUserInfo);
-        document.getElementById('message-area').innerText = `Welcome, ${userInfo.name}!`;
+    // Event listener for "Load CSV" click
+    const loadCSVButton = document.getElementById("load-csv-file");
+    loadCSVButton.addEventListener("click", function () {
+        fileInput.click();
+    });
+
+    // Event listener for file input change
+    fileInput.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            Papa.parse(file, {
+                header: true,
+                dynamicTyping: true,
+                complete: function (results) {
+                    const data = results.data;
+                    displayGoogleTable(data);
+                    messageArea.textContent = `Number of Records: ${data.length}`;
+                },
+                error: function (error) {
+                    console.error("Error parsing CSV:", error.message);
+                },
+            });
+        }
+    });
+
+    // Event listener for radio button selection
+    const radioButtons = document.getElementsByName("graph-choice");
+    radioButtons.forEach((radio) => {
+        radio.addEventListener("change", function () {
+            selectedGraph = radio.value;
+        });
+    });
+
+    // Event listener for "View" sub-menus
+    const viewMenu = document.getElementById("view-menu");
+
+    viewMenu.addEventListener("click", function (event) {
+        if (event.target.tagName === "A" && selectedGraph) {
+            const choice = event.target.textContent;
+    
+            if (choice === "Line" || choice === "Bar") {
+                if (isChartAllowedForChoice(choice)) {
+                    if (choice === "Line") {
+                        displayLineChart(loadedData);
+                    } else if (choice === "Bar") {
+                        displayBarChart(loadedData);
+                    }
+                    chartErrorMessage.style.display = "none"; // Hide error message
+                    messageArea.textContent = `Displaying ${choice} Chart for ${selectedGraph}`;
+                } else {
+                    // Hide the chart and display an error message for unsupported options
+                    chartContainer.style.display = "none";
+                    chartErrorMessage.textContent = "Chart type not supported for this option.";
+                    chartErrorMessage.style.display = "block"; // Show error message
+                }
+            } else {
+                // This choice is not "Line" or "Bar"
+                // Display a message in the "graph-display" section
+                chartContainer.style.display = "none";
+                chartErrorMessage.style.display = "none";
+                messageArea.textContent = "Not Applicable";
+            }
+        }
+    });
+    
+    // Function to check if a chart is allowed for the selected choice
+    function isChartAllowedForChoice(choice) {
+        return choice === "Line" || choice === "Bar";
+    }
+
+    // Chart creation functions
+    function displayBarChart(data) {
+        const chartData = prepareBarChartData(data);
+        const options = {
+            title: `${selectedGraph} (Bar Chart)`,
+            hAxis: { title: "Date" },
+            vAxis: { title: selectedGraph },
+        };
+
+        chartContainer.style.display = "block"; // Show the chart
+        chartErrorMessage.style.display = "none"; // Hide error message
+
+        const chart = new google.visualization.BarChart(chartContainer);
+        chart.draw(chartData, options);
+    }
+
+    function displayLineChart(data) {
+        const chartData = prepareLineChartData(data);
+        const options = {
+            title: `${selectedGraph} (Line Chart)`,
+            hAxis: { title: "Date" },
+            vAxis: { title: selectedGraph },
+        };
+
+        chartContainer.style.display = "block"; // Show the chart
+        chartErrorMessage.style.display = "none"; // Hide error message
+
+        const chart = new google.visualization.LineChart(chartContainer);
+        chart.draw(chartData, options);
+    }
+
+// Helper function to prepare data for Bar Chart
+function prepareBarChartData(data) {
+    const chartData = new google.visualization.DataTable();
+    chartData.addColumn("string", "Date");
+    chartData.addColumn("number", "Death");
+    chartData.addColumn("number", "DeathConfirmed");
+    chartData.addColumn("number", "DeathIncrease");
+    chartData.addColumn("number", "DeathProbable");
+
+    const chartDataArray = data.map((row) => [
+        row.date,
+        row.death,
+        row.deathConfirmed,
+        row.deathIncrease,
+        row.deathProbable
+    ]);
+
+    chartData.addRows(chartDataArray);
+
+    return chartData;
+}
+
+// Helper function to prepare data for Line Chart
+function prepareLineChartData(data) {
+    const chartData = new google.visualization.DataTable();
+    chartData.addColumn("string", "Date");
+    chartData.addColumn("number", "Death");
+    chartData.addColumn("number", "DeathConfirmed");
+    chartData.addColumn("number", "DeathIncrease");
+    chartData.addColumn("number", "DeathProbable");
+
+    const chartDataArray = data.map((row) => [
+        row.date,
+        row.death,
+        row.deathConfirmed,
+        row.deathIncrease,
+        row.deathProbable
+    ]);
+
+    chartData.addRows(chartDataArray);
+
+    return chartData;
+}
+
+
+    // Function to display Google Table
+    function displayGoogleTable(data) {
+        if (data.length === 0) {
+            googleTableContainer.innerHTML = "Please load data first.";
+        } else {
+            loadedData = data; // Store loaded data
+            const dataTable = new google.visualization.DataTable();
+            const columns = Object.keys(data[0]);
+
+            columns.forEach(function (column) {
+                if (!isNaN(data[0][column])) {
+                    dataTable.addColumn("number", column);
+                } else {
+                    dataTable.addColumn("string", column);
+                }
+            });
+
+            const rows = data.map(function (row) {
+                return columns.map(function (column) {
+                    return row[column];
+                });
+            });
+            dataTable.addRows(rows);
+
+            const table = new google.visualization.Table(googleTableContainer);
+            table.draw(dataTable, { showRowNumber: true, width: "100%", height: "100%" });
+        }
     }
 });
 
-// Function to display a message in the graph area
-function displayMessage(message) {
-    document.getElementById('graph-display').innerHTML = `<p>${message}</p>`;
-}
+    // Helper function to prepare data for Bar Chart
+    function prepareBarChartData(data) {
+        const chartData = new google.visualization.DataTable();
+        chartData.addColumn("string", "Date");
+        chartData.addColumn("number", "Deaths");
 
+        const chartDataArray = data.map((row) => [row.date, row.deaths]);
+        chartData.addRows(chartDataArray);
 
-// Function to handle the sub-menu click event in the "View" menu
-function viewSubMenuClickHandler(event) {
-    // Check if data is loaded
-    const table = document.getElementById('google-table');
-    if (!table || table.getElementsByTagName('tr').length <= 1) {
-        document.getElementById('message-area').innerText = "Please load data first";
-        return;
+        return chartData;
     }
 
-    const selectedDataChoice = getSelectedDataChoice();
-    const chartType = event.target.innerText.toLowerCase();
+    // Helper function to prepare data for Line Chart
+    function prepareLineChartData(data) {
+        const chartData = new google.visualization.DataTable();
+        chartData.addColumn("string", "Date");
+        chartData.addColumn("number", "Deaths");
 
-    // Check if the selected chart type is allowed for the data choice
-    if (isChartAllowed(selectedDataChoice, chartType)) {
-        generateGoogleChart(selectedDataChoice, chartType);
-    } else {
-        document.getElementById('message-area').innerText = `Chart type '${chartType}' is not allowed for '${selectedDataChoice}' data`;
+        const chartDataArray = data.map((row) => [row.date, row.deaths]);
+        chartData.addRows(chartDataArray);
+
+        return chartData;
     }
-}
 
-// Add event listeners to submenu items under the "View" menu
-const viewSubMenuItems = document.querySelectorAll('#view-menu .submenu li');
-for (const subMenuItem of viewSubMenuItems) {
-    subMenuItem.addEventListener('click', viewSubMenuClickHandler);
-}
+    // Event listener for "Load CSV" click
+    const loadCSVButton = document.getElementById("load-csv-file");
+    loadCSVButton.addEventListener("click", function () {
+        fileInput.click();
+    });
 
-// Helper function to get the selected data choice from the radio buttons
-function getSelectedDataChoice() {
-    const dataChoiceRadios = document.getElementsByName('graph-choice');
-    for (const radio of dataChoiceRadios) {
-        if (radio.checked) {
-            return radio.value;
+    // Event listener for file input change
+    fileInput.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            Papa.parse(file, {
+                header: true,
+                dynamicTyping: true,
+                complete: function (results) {
+                    const data = results.data;
+                    displayGoogleTable(data);
+                    messageArea.textContent = `Number of Records: ${data.length}`;
+                },
+                error: function (error) {
+                    console.error("Error parsing CSV:", error.message);
+                },
+            });
         }
+    });
+
+    // Event listener for radio button selection
+    const radioButtons = document.getElementsByName("graph-choice");
+    radioButtons.forEach((radio) => {
+        radio.addEventListener("change", function () {
+            selectedGraph = radio.value;
+        });
+    });
+
+    // Event listener for "View" sub-menus
+    const viewMenu = document.getElementById("view-menu");
+    const chartErrorMessage = document.getElementById("chart-error-message"); // New element for the error message
+    const chartContainer = document.getElementById("chart-container"); // Element for the chart
+
+    viewMenu.addEventListener("click", function (event) {
+        if (event.target.tagName === "A" && selectedGraph) {
+            const choice = event.target.textContent;
+    
+            if (selectedGraph === "Deaths" && choice !== "Bar" && choice !== "Line") {
+                // Display a "Not Applicable" message in the "graph-display" section
+                chartContainer.style.display = "none";
+                chartErrorMessage.textContent = "Not Applicable for Deaths";
+                chartErrorMessage.style.display = "block";
+                messageArea.textContent = ""; // Clear the message area
+            } else {
+                if (isChartAllowedForChoice(choice)) {
+                    if (choice === "Line") {
+                        displayLineChart(loadedData);
+                    } else if (choice === "Bar") {
+                        displayBarChart(loadedData);
+                    }
+                    chartErrorMessage.style.display = "none"; // Hide error message
+                    messageArea.textContent = `Displaying ${choice} Chart for ${selectedGraph}`;
+                } else {
+                    // Hide the chart and display an error message for unsupported options
+                    chartContainer.style.display = "none";
+                    chartErrorMessage.textContent = "Chart type not supported for this option.";
+                    chartErrorMessage.style.display = "block"; // Show error message
+                }
+            }
+        }
+    });
+    
+    // Function to check if a chart is allowed for the selected choice
+    function isChartAllowedForChoice(choice) {
+        return choice === "Line" || choice === "Bar";
     }
-    return null;
-}
 
-// Helper function to check if the chart is allowed for the selected data choice
-function isChartAllowed(dataChoice, chartType) {
-    // Define which chart types are allowed for each data choice
-    const allowedCharts = {
-        'Deaths': ['bar', 'line'],
-        'Total Test Results': ['bar', 'line'],
-        'State': ['bar', 'pie'],
-    };
+    // Function to display Bar Chart
+    function displayBarChart(data) {
+        const chartData = prepareBarChartData(data);
+        const options = {
+            title: `${selectedGraph} (Bar Chart)`,
+            hAxis: { title: "Date" },
+            vAxis: { title: selectedGraph },
+        };
 
-    return allowedCharts[dataChoice] && allowedCharts[dataChoice].includes(chartType);
-}
+        chartContainer.style.display = "block"; // Show the chart
+        chartErrorMessage.style.display = "none"; // Hide error message
+
+        const chart = new google.visualization.BarChart(chartContainer);
+        chart.draw(chartData, options);
+    }
+
+    // Function to display Line Chart
+    function displayLineChart(data) {
+        const chartData = prepareLineChartData(data);
+        const options = {
+            title: `${selectedGraph} (Line Chart)`,
+            hAxis: { title: "Date" },
+            vAxis: { title: selectedGraph },
+        };
+
+        chartContainer.style.display = "block"; // Show the chart
+        chartErrorMessage.style.display = "none"; // Hide error message
+
+        const chart = new google.visualization.LineChart(chartContainer);
+        chart.draw(chartData, options);
+    }

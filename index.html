@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-
-
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         /* Add a fixed height and overflow for the table container */
         #google-table-container {
@@ -39,14 +38,13 @@
                 </li>
                 <li id="view-menu"><a href="#">View</a>
                     <ul class="submenu">
-                        <li id="line-submenu"><a href="#">Line</a></li>
-                        <li id="pie-submenu"><a href="#">Pie</a></li>
-                        <li id="bar-submenu"><a href="#">Bar</a></li>
-                        <li id="map-submenu"><a href="#">Map</a></li>
+                        <li ></li><a href="#">Line</a></li>
+                        <li ></li><a href="#">Pie</a></li>
+                        <li ></li><a href="#">Bar</a></li>
+                        <li ></li><a href="#">Map</a></li>
                     </ul>
                 </li>
-                
-                          
+
                 <li><a href="#">Setting</a>
                     <ul class="submenu">
                         <li><a href="#">User Info</a></li>
@@ -63,11 +61,15 @@
     </header>
     <main>
         <section id="graph-display">
-            <!-- Graph display area content goes here -->
+            <div id="chart-container"></div>
+            <div id="no-data-message" style="display: none;">No data loaded. Please load data first.</div>
+            <div id="chart-error-message" style="display: none;"></div>
         </section>
+        
+        
         <section id="data-selection">
             <p>Please select one of the following choices, and then run one of the graphs in the View menu. Note: The empty, NULL, or NaN values will be excluded.</p>
-            
+
             <input type="radio" id="deaths-radio" name="graph-choice" value="Deaths">
             <label for="deaths-radio">Deaths (Bar, Line)</label>
 
@@ -76,9 +78,8 @@
 
             <input type="radio" id="state-radio" name="graph-choice" value="State">
             <label for="state-radio">State (Bar, Pie)</label>
-
         </section>
-        
+
         <section id="message-area">
             <!-- Message area content goes here -->
         </section>
@@ -87,6 +88,5 @@
         </section>
     </main>
     <input type="file" id="file-input" accept=".csv" style="display: none;">
-    <script src="script.js"></script>
 </body>
 </html>
