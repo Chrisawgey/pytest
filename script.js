@@ -425,10 +425,8 @@ clientInfoMenuItem.addEventListener("click", function () {
 
 
 
-
-
- // Function to display a login popup
- function displayLoginPopup() {
+// Function to display a login popup
+function displayLoginPopup() {
     const username = prompt("Enter your login:");
     const password = prompt("Enter your password:");
 
@@ -481,6 +479,9 @@ const logoutDBMenuItem = document.getElementById("logout-db");
 logoutDBMenuItem.addEventListener("click", displayLogoutPopup);
 
 
+
+
+
 // Event listener for the "Info" submenu under "Help"
 const infoMenuItem = document.getElementById("info-menu");
 infoMenuItem.addEventListener("click", function () {
@@ -521,62 +522,57 @@ infoMenuItem.addEventListener("click", function () {
     document.body.appendChild(modalDiv);
 });
 
+// Function to display user information popup
+function displayUserInfoPopup() {
+    // Create the user info popup
+    const userInfoPopup = document.createElement("div");
+    userInfoPopup.id = "user-info-popup";
+    userInfoPopup.classList.add("popup");
 
+    const popupContent = document.createElement("div");
+    popupContent.classList.add("popup-content");
 
+    // Create a close button
+    const closeUserInfoPopupButton = document.createElement("span");
+    closeUserInfoPopupButton.id = "close-user-info-popup";
+    closeUserInfoPopupButton.classList.add("close-btn");
+    closeUserInfoPopupButton.textContent = "×";
+    closeUserInfoPopupButton.addEventListener("click", function () {
+        userInfoPopup.style.display = "none";
+    });
 
-// Event listener for the "User Info" submenu under "Setting"
+    // Create and display user information
+    const userInfo = {
+        uid: "12345",       // Replace with actual user data
+        login: "john_doe",  // Replace with actual user data
+        name: "John Doe",   // Replace with actual user data
+        gender: "Male",     // Replace with actual user data
+    };
+
+    const userInfoContent = document.createElement("div");
+    userInfoContent.innerHTML = `
+        <h2>User Information</h2>
+        <p><strong>UID:</strong> ${userInfo.uid}</p>
+        <p><strong>Login:</strong> ${userInfo.login}</p>
+        <p><strong>Name:</strong> ${userInfo.name}</p>
+        <p><strong>Gender:</strong> ${userInfo.gender}</p>
+    `;
+
+    // Append elements to the user info popup
+    popupContent.appendChild(closeUserInfoPopupButton);
+    popupContent.appendChild(userInfoContent);
+    userInfoPopup.appendChild(popupContent);
+
+    // Add the user info popup to the main content
+    const main = document.querySelector("main");
+    main.appendChild(userInfoPopup);
+    userInfoPopup.style.display = "block";
+}
+
+// Event listener for the "User Info" submenu
 const userInfoMenuItem = document.getElementById("user-info-menu");
-userInfoMenuItem.addEventListener("click", function () {
-    // Create a function to fetch user information from the database using AJAX
-    function fetchUserInfo() {
-        // Send an AJAX request to a PHP script to fetch user information
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", "login.php", true); // Use "login.php" to fetch user info
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    try {
-                        const userInfo = JSON.parse(xhr.responseText);
-                        displayUserInfo(userInfo);
-                    } catch (error) {
-                        console.error("Error parsing JSON response: " + error.message);
-                    }
-                } else {
-                    console.error("Error fetching user information: HTTP status " + xhr.status);
-                }
-            }
-        };
-        xhr.send();
-    }
+userInfoMenuItem.addEventListener("click", displayUserInfoPopup);
 
-    // Function to display user information in a pop-up
-    function displayUserInfo(userInfo) {
-        const popup = document.createElement("div");
-        popup.className = "popup";
-
-        const popupContent = document.createElement("div");
-        popupContent.className = "popup-content";
-
-        const closeButton = document.createElement("span");
-        closeButton.className = "close-btn";
-        closeButton.innerHTML = "&times;";
-        closeButton.addEventListener("click", function () {
-            document.body.removeChild(popup);
-        });
-
-        const userInfoText = document.createElement("p");
-        userInfoText.innerHTML = `<b>UID:</b> ${userInfo.uid}<br /><b>Login:</b> ${userInfo.login}<br /><b>Name:</b> ${userInfo.name}<br /><b>Gender:</b> ${userInfo.gender}`;
-
-        popupContent.appendChild(closeButton);
-        popupContent.appendChild(userInfoText);
-        popup.appendChild(popupContent);
-
-        document.body.appendChild(popup);
-    }
-
-    // Fetch and display user information
-    fetchUserInfo();
-});
 
 
 });
