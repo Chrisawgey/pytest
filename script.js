@@ -522,6 +522,8 @@ infoMenuItem.addEventListener("click", function () {
 });
 
 
+
+
 // Event listener for the "User Info" submenu under "Setting"
 const userInfoMenuItem = document.getElementById("user-info-menu");
 userInfoMenuItem.addEventListener("click", function () {
@@ -529,62 +531,52 @@ userInfoMenuItem.addEventListener("click", function () {
     function fetchUserInfo() {
         // Send an AJAX request to a PHP script to fetch user information
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", "getUserInfo.php", true);
+        xhr.open("GET", "login.php", true); // Use "login.php" to fetch user info
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                try {
-                    const userInfo = JSON.parse(xhr.responseText);
-                    displayUserInfo(userInfo);
-                } catch (error) {
-                    console.error("Error parsing JSON response:", error);
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        const userInfo = JSON.parse(xhr.responseText);
+                        displayUserInfo(userInfo);
+                    } catch (error) {
+                        console.error("Error parsing JSON response: " + error.message);
+                    }
+                } else {
+                    console.error("Error fetching user information: HTTP status " + xhr.status);
                 }
             }
         };
         xhr.send();
     }
 
-    fetchUserInfo();
-
-    // Function to display user information in a modal
+    // Function to display user information in a pop-up
     function displayUserInfo(userInfo) {
-        // Create a modal dialog using JavaScript
-        const modalDiv = document.createElement("div");
-        modalDiv.className = "custom-modal";
+        const popup = document.createElement("div");
+        popup.className = "popup";
 
-        // Create a content box inside the modal
-        const contentBox = document.createElement("div");
-        contentBox.className = "modal-content";
+        const popupContent = document.createElement("div");
+        popupContent.className = "popup-content";
 
-        // Create a close button ("X" to cancel)
         const closeButton = document.createElement("span");
-        closeButton.className = "close";
-        closeButton.innerHTML = "×";
+        closeButton.className = "close-btn";
+        closeButton.innerHTML = "&times;";
         closeButton.addEventListener("click", function () {
-            document.body.removeChild(modalDiv);
+            document.body.removeChild(popup);
         });
 
-        // Create and add user information to the content box
         const userInfoText = document.createElement("p");
-        userInfoText.innerHTML = `
-            <strong>User ID:</strong> ${userInfo.uid}<br>
-            <strong>Login:</strong> ${userInfo.login}<br>
-            <strong>Name:</strong> ${userInfo.name}<br>
-            <strong>Gender:</strong> ${userInfo.gender}
-        `;
+        userInfoText.innerHTML = `<b>UID:</b> ${userInfo.uid}<br /><b>Login:</b> ${userInfo.login}<br /><b>Name:</b> ${userInfo.name}<br /><b>Gender:</b> ${userInfo.gender}`;
 
-        contentBox.appendChild(closeButton);
-        contentBox.appendChild(userInfoText);
-        modalDiv.appendChild(contentBox);
+        popupContent.appendChild(closeButton);
+        popupContent.appendChild(userInfoText);
+        popup.appendChild(popupContent);
 
-        // Append the modal to the body
-        document.body.appendChild(modalDiv);
+        document.body.appendChild(popup);
     }
 
-    // Fetch user information when the "User Info" submenu is clicked
+    // Fetch and display user information
     fetchUserInfo();
 });
-
-
 
 
 });
