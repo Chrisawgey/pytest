@@ -574,6 +574,22 @@ const userInfoMenuItem = document.getElementById("user-info-menu");
 userInfoMenuItem.addEventListener("click", displayUserInfoPopup);
 
 
+// Function to handle the "Exit" action
+function handleExit() {
+    // Clear session storage to clean memory
+    sessionStorage.clear();
+
+    // Close the current browser tab or window
+    window.close();
+
+    // Refresh the screen to remove cache
+    location.reload();
+}
+
+// Event listener for the "Exit" submenu
+const exitMenuItem = document.getElementById("exit-app");
+exitMenuItem.addEventListener("click", handleExit);
+
 
 });
 
