@@ -265,7 +265,7 @@ function displayLineChartTotalTestResults(data, selectedGraph) {
         chartData.addColumn("number", "DeathConfirmed");
         chartData.addColumn("number", "DeathIncrease");
         chartData.addColumn("number", "DeathProbable");
-
+    
         const chartDataArray = data.map((row) => [
             row.date,
             row.death,
@@ -273,11 +273,12 @@ function displayLineChartTotalTestResults(data, selectedGraph) {
             row.deathIncrease,
             row.deathProbable,
         ]);
-
+    
         chartData.addRows(chartDataArray);
-
+    
         return chartData;
     }
+    
 
     // Helper function to prepare data for Line Chart (Deaths)
     function prepareLineChartData(data, selectedGraph) {
@@ -482,4 +483,28 @@ logoutDBMenuItem.addEventListener("click", displayLogoutPopup);
 });
 
 
+// Event listener for the "Info" submenu under "Help"
+const infoMenuItem = document.getElementById("info");
+infoMenuItem.addEventListener("click", function () {
+    // Make an AJAX request to fetch your information
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "info.php", true);
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            if (response.error) {
+                alert("Error fetching data.");
+            } else {
+                // Display the information in a popup
+                const infoPopup = `Name: ${response.name}\nClass ID: ${response.class_id}\nProject Due Date: ${response.project_due_date}`;
+                alert(infoPopup);
+            }
+        } else {
+            alert("Request failed. Please try again later.");
+        }
+    };
+
+    xhr.send();
+});
 
