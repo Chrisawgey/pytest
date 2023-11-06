@@ -2,7 +2,7 @@
 include 'dbconfig.php'; // Include the database configuration
 
 // Fetch user information from the database
-$sql = "SELECT uid, login, name, gender FROM DV_User WHERE user_id = 1"; // Replace 123 with the user ID you want to retrieve
+$sql = "SELECT uid, login, name, gender FROM DV_User WHERE user_id = 1"; // Replace 1 with the user ID you want to retrieve
 $result = $connection->query($sql);
 
 if ($result && $result->num_rows > 0) {

@@ -532,12 +532,18 @@ userInfoMenuItem.addEventListener("click", function () {
         xhr.open("GET", "getUserInfo.php", true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                const userInfo = JSON.parse(xhr.responseText);
-                displayUserInfo(userInfo);
+                try {
+                    const userInfo = JSON.parse(xhr.responseText);
+                    displayUserInfo(userInfo);
+                } catch (error) {
+                    console.error("Error parsing JSON response:", error);
+                }
             }
         };
         xhr.send();
     }
+
+    fetchUserInfo();
 
     // Function to display user information in a modal
     function displayUserInfo(userInfo) {
