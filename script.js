@@ -129,22 +129,26 @@ function displayChartForState(choice) {
         return choice === "Line" || choice === "Bar";
     }
 
-    // Function to display Google Table
-    function displayGoogleTable(data) {
-        if (data.length === 0) {
-            googleTableContainer.innerHTML = "Please load data first.";
-        } else {
-            loadedData = data; // Store loaded data
-            const dataTable = new google.visualization.DataTable();
-            const columns = Object.keys(data[0]);
+// Function to display Google Table
+function displayGoogleTable(data) {
+    const googleTableContainer = document.getElementById("google-table-container"); // Obtain the container
+    const messageArea = document.getElementById("message-area"); // Obtain the message area element
 
-            columns.forEach(function (column) {
-                if (!isNaN(data[0][column])) {
-                    dataTable.addColumn("number", column);
-                } else {
-                    dataTable.addColumn("string", column);
-                }
-            });
+    if (data.length === 0) {
+        googleTableContainer.innerHTML = ""; // Clear the table container
+        messageArea.textContent = "Please load data first."; // Update the message area
+    } else {
+        loadedData = data; // Store loaded data
+        const dataTable = new google.visualization.DataTable();
+        const columns = Object.keys(data[0]);
+
+        columns.forEach(function (column) {
+            if (!isNaN(data[0][column])) {
+                dataTable.addColumn("number", column);
+            } else {
+                dataTable.addColumn("string", column);
+            }
+        });
 
             const rows = data.map(function (row) {
                 return columns.map(function (column) {
