@@ -131,62 +131,34 @@ function displayChartForState(choice) {
         return choice === "Line" || choice === "Bar";
     }
 
-// Function to apply color formatting to deathConfirmed column based on average
-function applyColorFormatting(dataTable, columnIndex, averageValue) {
-    const formatter = new google.visualization.ColorFormat();
+    // Function to display Google Table
+    function displayGoogleTable(data) {
+        if (data.length === 0) {
+            googleTableContainer.innerHTML = "Please load data first.";
+        } else {
+            loadedData = data; // Store loaded data
+            const dataTable = new google.visualization.DataTable();
+            const columns = Object.keys(data[0]);
 
-    // Red for values higher than the average, black otherwise
-    formatter.addRange(averageValue, null, "black", "black");
-    formatter.addRange(null, averageValue, "red", "red");
-
-    // Apply the color formatting to the entire column
-    formatter.format(dataTable, columnIndex);
-}
-
-// Function to display Google Table
-function displayGoogleTable(data) {
-    if (data.length === 0) {
-        googleTableContainer.innerHTML = "Please load data first.";
-    } else {
-        loadedData = data; // Store loaded data
-        const dataTable = new google.visualization.DataTable();
-        const columns = Object.keys(data[0]);
-
-        columns.forEach(function (column) {
-            if (!isNaN(data[0][column])) {
-                dataTable.addColumn("number", column);
-            } else {
-                dataTable.addColumn("string", column);
-            }
-        });
-
-        const rows = data.map(function (row) {
-            return columns.map(function (column) {
-                return row[column];
+            columns.forEach(function (column) {
+                if (!isNaN(data[0][column])) {
+                    dataTable.addColumn("number", column);
+                } else {
+                    dataTable.addColumn("string", column);
+                }
             });
-        });
 
-        dataTable.addRows(rows);
-
-        // Get the column index for deathConfirmed
-        const deathConfirmedIndex = columns.indexOf("deathConfirmed");
-
-        // Check if the column exists in the data
-        if (deathConfirmedIndex !== -1) {
-            // Get the average value for deathConfirmed
-            const deathConfirmedAverage = calculateColumnAverage(data, "deathConfirmed");
-
-            // Apply color formatting to deathConfirmed column based on average
-            applyColorFormatting(dataTable, deathConfirmedIndex, deathConfirmedAverage);
+            const rows = data.map(function (row) {
+                return columns.map(function (column) {
+                    return row[column];
+                });
+            });
+            dataTable.addRows(rows);
 
             const table = new google.visualization.Table(googleTableContainer);
             table.draw(dataTable, { showRowNumber: true, width: "100%", height: "100%" });
-        } else {
-            console.error("Column 'deathConfirmed' not found in the data.");
         }
     }
-}
-
 
     // Function to display Bar Chart for deaths 
     function displayBarChart(data, selectedGraph) {
@@ -622,4 +594,22 @@ const exitMenuItem = document.getElementById("exit-app");
 exitMenuItem.addEventListener("click", handleExit);
 
 
+});
+
+
+
+//project 2 cont
+
+// Event listener for "Load DB Data1" click
+const loadDBData1Button = document.getElementById("load-db-data1");
+loadDBData1Button.addEventListener("click", function () {
+    // Add your logic to handle loading DB Data1
+    console.log("Loading DB Data1...");
+});
+
+// Event listener for "Load DB Data2" click
+const loadDBData2Button = document.getElementById("load-db-data2");
+loadDBData2Button.addEventListener("click", function () {
+    // Add your logic to handle loading DB Data2
+    console.log("Loading DB Data2...");
 });
