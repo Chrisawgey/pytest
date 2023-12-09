@@ -1,4 +1,4 @@
-<?php
+<?php n
 include './dbconfig.php'; // Include the database configuration
 
 // Your SQL query to retrieve data from vDV_data2
