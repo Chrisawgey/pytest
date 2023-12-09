@@ -1,8 +1,8 @@
 <?php
-$host = "your_database_host"; // Replace with your database host name or IP address
-$dbusername = "your_database_username"; // Replace with your database username
-$dbpassword = "your_database_password"; // Replace with your database password
-$database = "your_database_name"; // Replace with the name of your database
+$host = "imc.kean.edu"; // Replace with your database host name or IP address
+$dbusername = "altamiad"; // Replace with your database username
+$dbpassword = "1144588"; // Replace with your database password
+$database = "datamining"; // Replace with the name of your database
 
 // Create a database connection
 $connection = new mysqli($host, $dbusername, $dbpassword, $database);

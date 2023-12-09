@@ -1,3 +1,5 @@
+//Prepares the variables to be able to be able to manipulat the application through different functions
+//Did this because I kept encountering event listener errors
 document.addEventListener("DOMContentLoaded", function () {
     const fileInput = document.getElementById("file-input");
     const googleTableContainer = document.getElementById("google-table-container");
@@ -129,14 +131,22 @@ function displayChartForState(choice) {
         return choice === "Line" || choice === "Bar";
     }
 
+// Function to apply color formatting to deathConfirmed column based on average
+function applyColorFormatting(dataTable, columnIndex, averageValue) {
+    const formatter = new google.visualization.ColorFormat();
+
+    // Red for values higher than the average, black otherwise
+    formatter.addRange(averageValue, null, "black", "black");
+    formatter.addRange(null, averageValue, "red", "red");
+
+    // Apply the color formatting to the entire column
+    formatter.format(dataTable, columnIndex);
+}
+
 // Function to display Google Table
 function displayGoogleTable(data) {
-    const googleTableContainer = document.getElementById("google-table-container"); // Obtain the container
-    const messageArea = document.getElementById("message-area"); // Obtain the message area element
-
     if (data.length === 0) {
-        googleTableContainer.innerHTML = ""; // Clear the table container
-        messageArea.textContent = "Please load data first."; // Update the message area
+        googleTableContainer.innerHTML = "Please load data first.";
     } else {
         loadedData = data; // Store loaded data
         const dataTable = new google.visualization.DataTable();
@@ -150,17 +160,33 @@ function displayGoogleTable(data) {
             }
         });
 
-            const rows = data.map(function (row) {
-                return columns.map(function (column) {
-                    return row[column];
-                });
+        const rows = data.map(function (row) {
+            return columns.map(function (column) {
+                return row[column];
             });
-            dataTable.addRows(rows);
+        });
+
+        dataTable.addRows(rows);
+
+        // Get the column index for deathConfirmed
+        const deathConfirmedIndex = columns.indexOf("deathConfirmed");
+
+        // Check if the column exists in the data
+        if (deathConfirmedIndex !== -1) {
+            // Get the average value for deathConfirmed
+            const deathConfirmedAverage = calculateColumnAverage(data, "deathConfirmed");
+
+            // Apply color formatting to deathConfirmed column based on average
+            applyColorFormatting(dataTable, deathConfirmedIndex, deathConfirmedAverage);
 
             const table = new google.visualization.Table(googleTableContainer);
             table.draw(dataTable, { showRowNumber: true, width: "100%", height: "100%" });
+        } else {
+            console.error("Column 'deathConfirmed' not found in the data.");
         }
     }
+}
+
 
     // Function to display Bar Chart for deaths 
     function displayBarChart(data, selectedGraph) {
@@ -353,6 +379,7 @@ function prepareBarChartDataState(data) {
 
     const chartDataArray = data.map((row) => [
         row.date,
+        //parsefloat accepts a string and converts to a floating point number 
         parseFloat(row.negative),
         parseFloat(row.negativeIncrease),
         parseFloat(row.positive),
@@ -491,7 +518,7 @@ const infoMenuItem = document.getElementById("info-menu");
 infoMenuItem.addEventListener("click", function () {
     // Replace the following placeholders with your actual information
     const yourName = "Adriana Altamirano";
-    const yourClassID = "CPS";
+    const yourClassID = "CPS4745";
     const projectDueDate = "10/29/2023";
 
     // Create a modal dialog using JavaScript
@@ -547,10 +574,10 @@ function displayUserInfoPopup() {
 
     // Create and display user information
     const userInfo = {
-        uid: "12345",       // Replace with actual user data
-        login: "john_doe",  // Replace with actual user data
-        name: "John Doe",   // Replace with actual user data
-        gender: "Male",     // Replace with actual user data
+        uid: "1",       // Replace with actual user data
+        login: "tiger",  // Replace with actual user data
+        name: "Victor Smith",   // Replace with actual user data
+        gender: "M",     // Replace with actual user data
     };
 
     const userInfoContent = document.createElement("div");
@@ -596,7 +623,3 @@ exitMenuItem.addEventListener("click", handleExit);
 
 
 });
-
-
-
-
