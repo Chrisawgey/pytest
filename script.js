@@ -473,9 +473,56 @@ function displayLogoutPopup() {
     }
 }
 
-// Event listener for the "Login to DB" sub-menu
+// Event listener for "Login to DB" sub-menu
 const loginToDBMenuItem = document.getElementById("login-to-db");
 loginToDBMenuItem.addEventListener("click", displayLoginPopup);
+
+// Function to display login popup
+function displayLoginPopup() {
+    // Prompt the user for login and password
+    const username = prompt("Enter your login:");
+    const password = prompt("Enter your password:");
+
+    if (username && password) {
+        // Prepare the data to send in the request
+        const data = {
+            userName: username,
+            userPassword: password,
+        };
+
+        // Send an AJAX request to the login.php file
+        fetch("login.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(responseData => {
+            if (responseData.success) {
+                // Login successful, store user information and show a welcome message
+                const user = {
+                    uid: responseData.uid,
+                    login: responseData.login,
+                    name: responseData.name,
+                    gender: responseData.gender,
+                };
+
+                // Store user information in sessionStorage
+                sessionStorage.setItem("user", JSON.stringify(user));
+
+                // Display a welcome message in the message area
+                messageArea.textContent = `Welcome, ${user.name}!`;
+            } else {
+                // Login failed, display an error message
+                messageArea.textContent = "Login failed. Please check your credentials.";
+            }
+        })
+        .catch(error => console.error("Error during login:", error));
+    }
+}
+
 
 // Event listener for the "Logout DB" sub-menu
 const logoutDBMenuItem = document.getElementById("logout-db");
