@@ -600,16 +600,39 @@ exitMenuItem.addEventListener("click", handleExit);
 
 //project 2 cont
 
-// Event listener for "Load DB Data1" click
-const loadDBData1Button = document.getElementById("load-db-data1");
-loadDBData1Button.addEventListener("click", function () {
-    // Add your logic to handle loading DB Data1
-    console.log("Loading DB Data1...");
+// Event listener for "Data1" submenu click
+const loadData1Button = document.getElementById("load-data1");
+loadData1Button.addEventListener("click", function () {
+    // Make an AJAX request to load data from vDV_data1
+    fetch("load_vdv_data1.php")
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Loaded Data1:", data.data);
+                // Handle the loaded data as needed, e.g., display in the Google table
+                displayGoogleTable(data.data);
+            } else {
+                console.error("Failed to load Data1:", data.message);
+            }
+        })
+        .catch(error => console.error("Error loading Data1:", error));
 });
 
-// Event listener for "Load DB Data2" click
-const loadDBData2Button = document.getElementById("load-db-data2");
-loadDBData2Button.addEventListener("click", function () {
-    // Add your logic to handle loading DB Data2
-    console.log("Loading DB Data2...");
+// Event listener for "Data2" submenu click
+const loadData2Button = document.getElementById("load-data2");
+loadData2Button.addEventListener("click", function () {
+    // Make an AJAX request to load data from vDV_data2
+    fetch("load_vdv_data2.php")
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Loaded Data2:", data.data);
+                // Handle the loaded data as needed, e.g., display in the Google table
+                displayGoogleTable(data.data);
+            } else {
+                console.error("Failed to load Data2:", data.message);
+            }
+        })
+        .catch(error => console.error("Error loading Data2:", error));
 });
+
