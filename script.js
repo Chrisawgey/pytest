@@ -132,33 +132,45 @@ function displayChartForState(choice) {
     }
 
     // Function to display Google Table
-    function displayGoogleTable(data) {
-        if (data.length === 0) {
-            googleTableContainer.innerHTML = "Please load data first.";
-        } else {
-            loadedData = data; // Store loaded data
-            const dataTable = new google.visualization.DataTable();
-            const columns = Object.keys(data[0]);
+function displayGoogleTable(data) {
+    if (data.length === 0) {
+        googleTableContainer.innerHTML = "Please load data first.";
+    } else {
+        loadedData = data; // Store loaded data
+        const dataTable = new google.visualization.DataTable();
 
-            columns.forEach(function (column) {
-                if (!isNaN(data[0][column])) {
-                    dataTable.addColumn("number", column);
-                } else {
-                    dataTable.addColumn("string", column);
-                }
-            });
+        // Add specific columns to the DataTable
+        dataTable.addColumn("string", "Decommissioned");
+        dataTable.addColumn("number", "TaxReturnsFiled");
+        dataTable.addColumn("number", "EstimatedPopulation");
+        dataTable.addColumn("number", "TotalWages");
+        dataTable.addColumn("number", "AvgWages");
+        dataTable.addColumn("number", "RecordNumber");
+        dataTable.addColumn("number", "Zipcode");
+        dataTable.addColumn("string", "City");
+        dataTable.addColumn("string", "State");
 
-            const rows = data.map(function (row) {
-                return columns.map(function (column) {
-                    return row[column];
-                });
-            });
-            dataTable.addRows(rows);
+        const rows = data.map(function (row) {
+            return [
+                row.Decommissioned,
+                row.TaxReturnsFiled,
+                row.EstimatedPopulation,
+                row.TotalWages,
+                row.AvgWages,
+                row.RecordNumber,
+                row.Zipcode,
+                row.City,
+                row.State
+            ];
+        });
 
-            const table = new google.visualization.Table(googleTableContainer);
-            table.draw(dataTable, { showRowNumber: true, width: "100%", height: "100%" });
-        }
+        dataTable.addRows(rows);
+
+        const table = new google.visualization.Table(googleTableContainer);
+        table.draw(dataTable, { showRowNumber: true, width: "100%", height: "100%" });
     }
+}
+
 
     // Function to display Bar Chart for deaths 
     function displayBarChart(data, selectedGraph) {
@@ -572,6 +584,8 @@ infoMenuItem.addEventListener("click", function () {
     document.body.appendChild(modalDiv);
 });
 
+
+
 // Function to display user information popup
 function displayUserInfoPopup() {
     // Create the user info popup
@@ -664,6 +678,7 @@ loadData1Button.addEventListener("click", function () {
         })
         .catch(error => console.error("Error loading Data1:", error));
 });
+
 
 // Event listener for "Data2" submenu click
 const loadData2Button = document.getElementById("load-data2");
