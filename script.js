@@ -655,46 +655,70 @@ const exitMenuItem = document.getElementById("exit-app");
 exitMenuItem.addEventListener("click", handleExit);
 
 
+
+//project 2 cont
+
+    const loadData1Button = document.getElementById("load-db-data1");
+    const loadData2Button = document.getElementById("load-db-data2");
+    const loginToDBButton = document.getElementById("login-to-db");
+
+    // Event listener for "Load DB Data1" submenu click
+    loadData1Button.addEventListener("click", function () {
+        fetchDataFromDatabase("load_vdv_data1.php");
+    });
+
+    // Event listener for "Load DB Data2" submenu click
+    loadData2Button.addEventListener("click", function () {
+        fetchDataFromDatabase("load_vdv_data2.php");
+    });
+
+    // Event listener for "Login to DB" submenu click
+    loginToDBButton.addEventListener("click", function () {
+        showLoginSection();
+    });
+
+    // Function to fetch data from the database
+    function fetchDataFromDatabase(url) {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Loaded DB Data:", data.data);
+                    displayGoogleTable(data.data);
+                    // Notify the user of database access
+                    notifyDatabaseAccess();
+                } else {
+                    console.error("Failed to load DB Data:", data.message);
+                }
+            })
+            .catch(error => console.error("Error loading DB Data:", error));
+    }
+
+    // Function to notify the user of database access
+    function notifyDatabaseAccess() {
+        alert("You now have access to the database!");
+    }
+
+    // Function to show the login section
+    function showLoginSection() {
+        const loginSection = document.getElementById("login-section");
+        loginSection.style.display = "block";
+    }
+
+    // Assuming this function is called after a successful login
+    function handleLoginSuccess(response) {
+        // Login successful, store user information and show a welcome message
+        sessionStorage.setItem("user", JSON.stringify(response));
+        messageArea.textContent = `Welcome, ${response.name}!`;
+
+        // Notify the user of database access
+        notifyDatabaseAccess();
+    }
+
 });
 
 
 
 //project 2 cont
 
-// Event listener for "Data1" submenu click
-const loadData1Button = document.getElementById("load-data1");
-loadData1Button.addEventListener("click", function () {
-    // Make an AJAX request to load data from vDV_data1
-    fetch("load_vdv_data1.php")
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log("Loaded Data1:", data.data);
-                // Handle the loaded data as needed, e.g., display in the Google table
-                displayGoogleTable(data.data);
-            } else {
-                console.error("Failed to load Data1:", data.message);
-            }
-        })
-        .catch(error => console.error("Error loading Data1:", error));
-});
-
-
-// Event listener for "Data2" submenu click
-const loadData2Button = document.getElementById("load-data2");
-loadData2Button.addEventListener("click", function () {
-    // Make an AJAX request to load data from vDV_data2
-    fetch("load_vdv_data2.php")
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log("Loaded Data2:", data.data);
-                // Handle the loaded data as needed, e.g., display in the Google table
-                displayGoogleTable(data.data);
-            } else {
-                console.error("Failed to load Data2:", data.message);
-            }
-        })
-        .catch(error => console.error("Error loading Data2:", error));
-});
 
