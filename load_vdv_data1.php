@@ -16,3 +16,4 @@ if ($result) {
 
 $connection->close();
 ?>
+
