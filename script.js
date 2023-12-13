@@ -131,34 +131,77 @@ function displayChartForState(choice) {
         return choice === "Line" || choice === "Bar";
     }
 
-     // Function to display Google Table
-     function displayGoogleTable(data) {
-        if (data.length === 0) {
-            googleTableContainer.innerHTML = "Please load data first.";
-        } else {
-            loadedData = data; // Store loaded data
-            const dataTable = new google.visualization.DataTable();
-            const columns = Object.keys(data[0]);
+     // Function to display Google Table with color-coded cells
+function displayGoogleTable(data) {
+    if (data.length === 0) {
+        googleTableContainer.innerHTML = "Please load data first.";
+    } else {
+        loadedData = data; // Store loaded data
+        const dataTable = new google.visualization.DataTable();
+        const columns = Object.keys(data[0]);
 
-            columns.forEach(function (column) {
-                if (!isNaN(data[0][column])) {
-                    dataTable.addColumn("number", column);
-                } else {
-                    dataTable.addColumn("string", column);
-                }
+        columns.forEach(function (column) {
+            if (!isNaN(data[0][column])) {
+                dataTable.addColumn("number", column);
+            } else {
+                dataTable.addColumn("string", column);
+            }
+        });
+
+        const rows = data.map(function (row) {
+            return columns.map(function (column) {
+                return row[column];
             });
+        });
+        dataTable.addRows(rows);
 
-            const rows = data.map(function (row) {
-                return columns.map(function (column) {
-                    return row[column];
-                });
-            });
-            dataTable.addRows(rows);
+        // Calculate column averages for Death and TotalTestResults
+        const deathAverage = calculateColumnAverage(data, 'death');
+        const totalTestResultsAverage = calculateColumnAverage(data, 'totalTestResults');
 
-            const table = new google.visualization.Table(googleTableContainer);
-            table.draw(dataTable, { showRowNumber: true, width: "100%", height: "100%" });
-        }
+        const options = {
+            showRowNumber: true,
+            width: "100%",
+            height: "100%",
+            cssClassNames: {
+                headerRow: 'google-table-header',
+                tableRow: 'google-table-row',
+            },
+            formatters: {
+                number: [
+                    {
+                        columnNum: getColumnIndex('death'), // Replace with the actual column index for 'death'
+                        formatType: 'color',
+                        color: 'red',
+                        ranges: [{ from: deathAverage, to: null }]
+                    },
+                    {
+                        columnNum: getColumnIndex('totalTestResults'), // Replace with the actual column index for 'totalTestResults'
+                        formatType: 'color',
+                        color: 'green',
+                        ranges: [{ from: totalTestResultsAverage, to: null }]
+                    }
+                ],
+            },
+        };
+
+        const table = new google.visualization.Table(googleTableContainer);
+        table.draw(dataTable, options);
     }
+}
+
+// Function to calculate the average of a specific column
+function calculateColumnAverage(data, columnName) {
+    const columnValues = data.map(row => parseFloat(row[columnName]) || 0);
+    const sum = columnValues.reduce((acc, value) => acc + value, 0);
+    return sum / data.length;
+}
+
+// Function to get the column index by name
+function getColumnIndex(columnName) {
+    return loadedData.length > 0 ? Object.keys(loadedData[0]).indexOf(columnName) : -1;
+}
+
 
 
 
@@ -704,6 +747,39 @@ exitMenuItem.addEventListener("click", handleExit);
         // Notify the user of database access
         notifyDatabaseAccess();
     }
+
+
+    // Event listener for radio buttons
+document.querySelectorAll('input[name="graph-choice"]').forEach(function (radio) {
+    radio.addEventListener('click', function () {
+        updateCharts(this.value);
+    });
+});
+
+// Function to update charts based on the selected radio button
+function updateCharts(selectedValue) {
+    switch (selectedValue) {
+        case 'Deaths':
+            // Display Bar and Line charts for Deaths
+            displayBarChart('death', 'Deaths');
+            displayLineChart('death', 'Deaths');
+            break;
+        case 'Total Test Results':
+            // Display Bar and Line charts for Total Test Results
+            displayBarChart('totalTestResults', 'Total Test Results');
+            displayLineChart('totalTestResults', 'Total Test Results');
+            break;
+        case 'State':
+            // Display Bar and Pie charts for State
+            displayBarChart('state', 'State');
+            displayPieChart('state', 'State');
+            break;
+        default:
+            // Handle other cases if needed
+            break;
+    }
+}
+
 
 });
 
