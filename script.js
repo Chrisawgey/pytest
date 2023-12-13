@@ -749,12 +749,35 @@ exitMenuItem.addEventListener("click", handleExit);
     }
 
 
+    //I've added an event listener to each radio button in the document.querySelectorAll('input[name="graph-choice"]') loop. This listener triggers the updateCharts function when a radio button is clicked.
+    //The updateCharts function takes the selected radio button's value and uses a switch statement to determine which charts to display based on the selected option
+
+
     // Event listener for radio buttons
 document.querySelectorAll('input[name="graph-choice"]').forEach(function (radio) {
     radio.addEventListener('click', function () {
         updateCharts(this.value);
     });
 });
+
+// Placeholder functions for displaying charts
+function displayBarChart(columnName, chartTitle) {
+    // Implement your code to display Bar Chart using the specified column
+    // Replace the following line with your actual code
+    console.log(`Displaying Bar Chart for ${chartTitle} using ${columnName}`);
+}
+
+function displayLineChart(columnName, chartTitle) {
+    // Implement your code to display Line Chart using the specified column
+    // Replace the following line with your actual code
+    console.log(`Displaying Line Chart for ${chartTitle} using ${columnName}`);
+}
+
+function displayPieChart(columnName, chartTitle) {
+    // Implement your code to display Pie Chart using the specified column
+    // Replace the following line with your actual code
+    console.log(`Displaying Pie Chart for ${chartTitle} using ${columnName}`);
+}
 
 // Function to update charts based on the selected radio button
 function updateCharts(selectedValue) {
@@ -779,6 +802,7 @@ function updateCharts(selectedValue) {
             break;
     }
 }
+
 
 
 });
