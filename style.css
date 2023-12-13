@@ -192,3 +192,23 @@ nav a:hover {
     cursor: pointer;
     color: #888; /* Change the color to make it visible */
 }
+
+/* Style for the TotalTestResults column slider */
+#total-test-results-slider-container {
+    margin-top: 10px;
+}
+
+/* Style for the TotalTestResults column slider label */
+#total-test-results-slider-container label {
+    margin-right: 10px;
+}
+
+/* Style for the Death column slider */
+#death-slider-container {
+    margin-top: 10px;
+}
+
+/* Style for the Death column slider label */
+#death-slider-container label {
+    margin-right: 10px;
+}

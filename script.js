@@ -691,6 +691,8 @@ exitMenuItem.addEventListener("click", handleExit);
 
 //project 2 cont
 
+
+//Adding new constants for the loaddata -> getting the element of load-db(1-2) from the html button
     const loadData1Button = document.getElementById("load-db-data1");
     const loadData2Button = document.getElementById("load-db-data2");
     const loginToDBButton = document.getElementById("login-to-db");
@@ -804,6 +806,94 @@ function updateCharts(selectedValue) {
 }
 
 
+// Get the Death column slider element
+const deathSlider = document.getElementById('death-slider');
+
+// Set the initial position of the Death column slider to its average value
+const deathColumn = getColumnData('death'); // Replace 'Deaths' with the actual column header
+const deathColumnAverage = calculateAverage(deathColumn);
+deathSlider.value = deathColumnAverage;
+
+// Event listener for the Death column slider
+deathSlider.addEventListener('input', function () {
+    updateColorsBasedOnSlider();
+});
+
+// Function to update colors based on the Death column slider position
+function updateColorsBasedOnSlider() {
+    const deathSliderValue = parseFloat(deathSlider.value);
+
+    // Update the color of Death column cells
+    updateDeathColumnColor(deathSliderValue);
+
+    // Update colors in all charts (implement this based on your chart library)
+    updateChartColors(deathSliderValue);
+}
+
+// Function to update the color of Death column cells
+function updateDeathColumnColor(sliderValue) {
+    const deathColumnCells = document.querySelectorAll('#google-table tbody td:nth-child(DEATH_COLUMN_INDEX)'); // Replace DEATH_COLUMN_INDEX with the actual column index
+    deathColumnCells.forEach(function (cell) {
+        const cellValue = parseFloat(cell.textContent);
+        cell.style.color = cellValue > sliderValue ? 'red' : 'black';
+    });
+}
+
+// Function to update colors in all charts (you need to implement this based on your chart library)
+function updateChartColors(sliderValue) {
+    // Implement your code to update colors in all charts
+    // You may need to interact with your chart library here
+    console.log('Updating chart colors based on slider value:', sliderValue);
+}
+
+// Helper function to get data for a specific column
+function getColumnData(columnHeader) {
+    // Implement this function to get data for the specified column
+    // You may need to interact with your data structure (e.g., table or array)
+    // Replace the following line with your actual code
+    return [/* Your column data array here */];
+}
+
+// Helper function to calculate the average of an array
+function calculateAverage(array) {
+    // Implement this function to calculate the average of the array
+    // Replace the following line with your actual code
+    return array.reduce((sum, value) => sum + value, 0) / array.length;
+}
+
+
+// Get the TotalTestResults column slider element
+const totalTestResultsSlider = document.getElementById('total-test-results-slider');
+
+// Set the initial position of the TotalTestResults column slider to its average value
+const totalTestResultsColumn = getColumnData('Total Test Results'); // Replace 'Total Test Results' with the actual column header
+const totalTestResultsColumnAverage = calculateAverage(totalTestResultsColumn);
+totalTestResultsSlider.value = totalTestResultsColumnAverage;
+
+// Event listener for the TotalTestResults column slider
+totalTestResultsSlider.addEventListener('input', function () {
+    updateColorsBasedOnTotalTestResultsSlider();
+});
+
+// Function to update colors based on the TotalTestResults column slider position
+function updateColorsBasedOnTotalTestResultsSlider() {
+    const totalTestResultsSliderValue = parseFloat(totalTestResultsSlider.value);
+
+    // Update the color of TotalTestResults column cells
+    updateTotalTestResultsColumnColor(totalTestResultsSliderValue);
+
+    // Update colors in all charts (implement this based on your chart library)
+    updateChartColors(totalTestResultsSliderValue);
+}
+
+// Function to update the color of TotalTestResults column cells
+function updateTotalTestResultsColumnColor(sliderValue) {
+    const totalTestResultsColumnCells = document.querySelectorAll('#google-table tbody td:nth-child(TOTAL_TEST_RESULTS_COLUMN_INDEX)'); // Replace TOTAL_TEST_RESULTS_COLUMN_INDEX with the actual column index
+    totalTestResultsColumnCells.forEach(function (cell) {
+        const cellValue = parseFloat(cell.textContent);
+        cell.style.color = cellValue > sliderValue ? 'green' : 'black';
+    });
+}
 
 });
 
