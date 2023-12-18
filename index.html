@@ -116,11 +116,19 @@
             <div id="google-table"></div>
         </section>
 
-        <section id="login-section" style="display: none;">
-            <input type="password" id="password-input" placeholder="Enter your password">
-            <button id="login-button">Login</button>
-        </section>
-    </main>
+    
+        <div id="login-popup">
+        <label for="popup-username">Username:</label>
+        <input type="text" id="popup-username" placeholder="Enter your login">
+
+        <label for="popup-password">Password:</label>
+        <input type="password" id="popup-password" placeholder="Enter your password">
+
+        <button onclick="submitLogin()">Login</button>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    
 
     <div id="custom-popup" class="popup">
         <div class="popup-content">

@@ -558,33 +558,54 @@ clientInfoMenuItem.addEventListener("click", function () {
 
 
 
-// Function to display a login popup
+// Function to display a styled login popup
 function displayLoginPopup() {
-    const username = prompt("Enter your login:");
-    const password = prompt("Enter your password:");
+    var popup = document.getElementById("login-popup");
+    popup.style.display = "block";
+}
+
+// Function to close the login popup
+function closePopup() {
+    var popup = document.getElementById("login-popup");
+    popup.style.display = "none";
+}
+
+// Function to handle login submission
+function submitLogin() {
+    var usernameInput = document.getElementById("popup-username");
+    var passwordInput = document.getElementById("popup-password");
+
+    var username = usernameInput.value;
+    var password = passwordInput.value;
 
     if (username && password) {
         // Prepare the data to send in the request
-        const data = {
+        var data = {
             userName: username,
             userPassword: password,
         };
 
         // Send an AJAX request to the login.php file
-        const xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open("POST", "login.php", true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
 
-                if (response.success) {
-                    // Login successful, store user information and show a welcome message
-                    sessionStorage.setItem("user", JSON.stringify(response));
-                    messageArea.textContent = `Welcome, ${response.name}!`;
+                    if (response.success) {
+                        // Login successful, store user information and show a welcome message
+                        sessionStorage.setItem("user", JSON.stringify(response));
+                        showMessage(`Welcome, ${response.name}!`);
+                        closePopup();
+                    } else {
+                        // Login failed, display an error message
+                        showMessage("Login failed. Please check your credentials.");
+                    }
                 } else {
-                    // Login failed, display an error message
-                    messageArea.textContent = "Login failed. Please check your credentials.";
+                    // Handle other HTTP status codes (e.g., 404, 500)
+                    showMessage("Error: Unable to communicate with the server.");
                 }
             }
         };
@@ -592,6 +613,20 @@ function displayLoginPopup() {
         xhr.send(JSON.stringify(data));
     }
 }
+
+// Function to display messages in the message area
+function showMessage(message) {
+    var messageArea = document.getElementById("message-area");
+    messageArea.textContent = message;
+}
+
+
+// Function to display messages in the message area
+function showMessage(message) {
+    var messageArea = document.getElementById("message-area");
+    messageArea.textContent = message;
+}
+
 
 // Function to display a confirmation popup for logout
 function displayLogoutPopup() {
@@ -659,33 +694,6 @@ const logoutDBMenuItem = document.getElementById("logout-db");
 logoutDBMenuItem.addEventListener("click", displayLogoutPopup);
 
 
-// Function to load data from the database
-function loadDataFromDatabase(viewName) {
-    const username = prompt("Enter your username:");
-    const password = prompt("Enter your password:");
-
-    // Use AJAX, Fetch API, or another method to send a request to your server with the credentials and viewName
-    // Example using Fetch API:
-    fetch(`your-server-endpoint?username=${username}&password=${password}&view=${viewName}`)
-        .then(response => response.json())
-        .then(data => {
-            // Display the retrieved data in the Google table
-            displayGoogleTable(data);
-        })
-        .catch(error => {
-            console.error("Error loading data from the database:", error);
-        });
-}
-
-// Event listener for "Load DB Data1" button
-document.getElementById("load-db-data1").addEventListener("click", function () {
-    loadDataFromDatabase('vDV_data1');
-});
-
-// Event listener for "Load DB Data2" button
-document.getElementById("load-db-data2").addEventListener("click", function () {
-    loadDataFromDatabase('vDV_Data2');
-});
 
 
 

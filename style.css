@@ -225,3 +225,33 @@ nav a:hover {
 #bar-chart-container {
     margin-right: 2%;
 }
+
+/* Add styling for the login popup */
+#login-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+#login-popup label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#login-popup input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+}
+
+/* Hide characters in the password input */
+#login-popup input[type="password"] {
+    font-family: 'arial';
+}
