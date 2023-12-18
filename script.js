@@ -53,18 +53,34 @@ const isCSVLoaded = loadedData && loadedData.length > 0;
 const logoutButton = document.getElementById("logout-db");
 logoutButton.addEventListener("click", function () {
     // Call a function to log the user out of the database
-    // Add your logout logic here (e.g., make an API call)
-
-    // Reload the page after logout
-    location.reload();
+    logoutAndRefresh();
 });
 
 // Function to log out the user and refresh the page
 function logoutAndRefresh() {
-    // Add your logout logic here (e.g., make an API call)
+    // Assuming you have an API endpoint for user logout
+    // You can use fetch or another method to make an API call
+    fetch('/logout', {
+        method: 'POST',
+        // You may need to include additional headers or credentials
+        // headers: {
+        //     'Content-Type': 'application/json',
+        //     'Authorization': 'Bearer ' + YOUR_ACCESS_TOKEN
+        // },
+        // credentials: 'include',
+    })
+    .then(response => response.text())
+    .then(message => {
+        // Display a success message
+        alert(message);
 
-    // Reload the page after logout
-    location.reload();
+        // Reload the page after logout
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Logout failed:', error);
+        // Handle the error, e.g., display an error message to the user
+    });
 }
 
 // Check if CSV data is loaded and automatically log out
@@ -72,6 +88,7 @@ if (isCSVLoaded) {
     // Call the logout function when there is CSV data
     logoutAndRefresh();
 }
+
 
 
     //This code attaches an event listener to each radio button, and when a radio button is clicked, it checks the selected graph choice and displays both bar and line charts 
