@@ -165,77 +165,7 @@ viewMenu.addEventListener("click", function (event) {
         return choice === "Line" || choice === "Bar";
     }
 
-     // Function to display Google Table with color-coded cells
-function displayGoogleTable(data) {
-    if (data.length === 0) {
-        googleTableContainer.innerHTML = "Please load data first.";
-    } else {
-        loadedData = data; // Store loaded data
-        const dataTable = new google.visualization.DataTable();
-        const columns = Object.keys(data[0]);
-
-        columns.forEach(function (column) {
-            if (!isNaN(data[0][column])) {
-                dataTable.addColumn("number", column);
-            } else {
-                dataTable.addColumn("string", column);
-            }
-        });
-
-        const rows = data.map(function (row) {
-            return columns.map(function (column) {
-                return row[column];
-            });
-        });
-        dataTable.addRows(rows);
-
-        // Calculate column averages for Death and TotalTestResults
-        const deathAverage = calculateColumnAverage(data, 'death');
-        const totalTestResultsAverage = calculateColumnAverage(data, 'totalTestResults');
-
-        const options = {
-            showRowNumber: true,
-            width: "100%",
-            height: "100%",
-            cssClassNames: {
-                headerRow: 'google-table-header',
-                tableRow: 'google-table-row',
-            },
-            formatters: {
-                number: [
-                    {
-                        columnNum: getColumnIndex('death'), // Replace with the actual column index for 'death'
-                        formatType: 'color',
-                        color: 'red',
-                        ranges: [{ from: deathAverage, to: null }]
-                    },
-                    {
-                        columnNum: getColumnIndex('totalTestResults'), // Replace with the actual column index for 'totalTestResults'
-                        formatType: 'color',
-                        color: 'green',
-                        ranges: [{ from: totalTestResultsAverage, to: null }]
-                    }
-                ],
-            },
-        };
-
-        const table = new google.visualization.Table(googleTableContainer);
-        table.draw(dataTable, options);
-    }
-}
-
-// Function to calculate the average of a specific column
-function calculateColumnAverage(data, columnName) {
-    const columnValues = data.map(row => parseFloat(row[columnName]) || 0);
-    const sum = columnValues.reduce((acc, value) => acc + value, 0);
-    return sum / data.length;
-}
-
-// Function to get the column index by name
-function getColumnIndex(columnName) {
-    return loadedData.length > 0 ? Object.keys(loadedData[0]).indexOf(columnName) : -1;
-}
-
+     
 
 
 
@@ -557,41 +487,6 @@ clientInfoMenuItem.addEventListener("click", function () {
 });
 
 
-
-// Function to display a login popup
-function displayLoginPopup() {
-    const username = prompt("Enter your login:");
-    const password = prompt("Enter your password:");
-
-    if (username && password) {
-        // Prepare the data to send in the request
-        const data = {
-            userName: username,
-            userPassword: password,
-        };
-
-        // Send an AJAX request to the login.php file
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "login.php", true);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                const response = JSON.parse(xhr.responseText);
-
-                if (response.success) {
-                    // Login successful, store user information and show a welcome message
-                    sessionStorage.setItem("user", JSON.stringify(response));
-                    messageArea.textContent = `Welcome, ${response.name}!`;
-                } else {
-                    // Login failed, display an error message
-                    messageArea.textContent = "Login failed. Please check your credentials.";
-                }
-            }
-        };
-
-        xhr.send(JSON.stringify(data));
-    }
-}
 
 // Function to display a confirmation popup for logout
 function displayLogoutPopup() {
