@@ -96,6 +96,10 @@
         
         
         <section id="data-selection">
+
+                <div id="death-slider-container"></div>
+                <div id="total-test-results-slider-container"></div>
+                
             <p>Please select one of the following choices, and then run one of the graphs in the View menu. Note: The empty, NULL, or NaN values will be excluded.</p>
 
             <input type="radio" id="deaths-radio" name="graph-choice" value="Deaths">
@@ -131,16 +135,6 @@
 
     <input type="file" id="file-input" accept=".csv" style="display: none;">
 
-    <!-- Add the Death column slider -->
-<div id="death-slider-container">
-    <label for="death-slider">Death Slider:</label>
-    <input type="range" id="death-slider" name="death-slider">
-</div>
-
-<div id="total-test-results-slider-container">
-    <label for="total-test-results-slider">TotalTestResults Slider:</label>
-    <input type="range" id="total-test-results-slider" name="total-test-results-slider">
-</div>
 
 </body>
 </html>

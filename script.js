@@ -157,6 +157,43 @@ viewMenu.addEventListener("click", function (event) {
             }
         }
     }
+
+    // Function to highlight outliers based on quartile method
+    function highlightOutliers(columnName) {
+        const columnValues = loadedData.map(row => parseFloat(row[columnName]) || 0);
+        const q1 = calculateQuartile(columnValues, 0.25);
+        const q3 = calculateQuartile(columnValues, 0.75);
+        const iqr = q3 - q1;
+        const lowerThreshold = q1 - 1.5 * iqr;
+        const upperThreshold = q3 + 1.5 * iqr;
+
+        messageArea.textContent = `Outlier Thresholds: Lower - ${lowerThreshold}, Upper - ${upperThreshold}`;
+
+        const rows = document.querySelectorAll("tr");
+
+        rows.forEach(row => {
+            const cell = row.querySelector(`td[data-col="${columnName}"]`);
+            const cellValue = parseFloat(cell.textContent);
+
+            if (!isNaN(cellValue) && (cellValue < lowerThreshold || cellValue > upperThreshold)) {
+                row.style.backgroundColor = "yellow";
+            }
+        });
+    }
+
+    // Function to calculate quartile
+    function calculateQuartile(data, percentile) {
+        const sortedData = [...data].sort((a, b) => a - b);
+        const index = (percentile * (sortedData.length - 1)) + 1;
+        const fractionPart = index % 1;
+        const wholePart = Math.floor(index);
+
+        if (fractionPart === 0) {
+            return sortedData[wholePart - 1];
+        } else {
+            return sortedData[wholePart - 1] + fractionPart * (sortedData[wholePart] - sortedData[wholePart - 1]);
+        }
+    }
 });
 
 
@@ -165,7 +202,198 @@ viewMenu.addEventListener("click", function (event) {
         return choice === "Line" || choice === "Bar";
     }
 
-     
+    // Function to display Google Table with color-coded cells
+function displayGoogleTable(data) {
+    if (data.length === 0) {
+        googleTableContainer.innerHTML = "Please load data first.";
+    } else {
+        loadedData = data; // Store loaded data
+        const dataTable = new google.visualization.DataTable();
+        const columns = Object.keys(data[0]);
+
+        columns.forEach(function (column) {
+            if (!isNaN(data[0][column])) {
+                dataTable.addColumn("number", column);
+            } else {
+                dataTable.addColumn("string", column);
+            }
+        });
+
+        const rows = data.map(function (row) {
+            return columns.map(function (column) {
+                return row[column];
+            });
+        });
+        dataTable.addRows(rows);
+
+        // Calculate column averages for Death and TotalTestResults
+        const deathAverage = calculateColumnAverage(data, 'death');
+        const totalTestResultsAverage = calculateColumnAverage(data, 'totalTestResults');
+
+        const options = {
+            showRowNumber: true,
+            width: "100%",
+            height: "100%",
+            cssClassNames: {
+                headerRow: 'google-table-header',
+                tableRow: 'google-table-row',
+            },
+            formatters: {
+                number: [
+                    {
+                        columnNum: getColumnIndex('death'),
+                        formatType: 'color',
+                        color: 'red',
+                        ranges: [{ from: deathAverage, to: null }]
+                    },
+                    {
+                        columnNum: getColumnIndex('totalTestResults'),
+                        formatType: 'color',
+                        color: 'green',
+                        ranges: [{ from: totalTestResultsAverage, to: null }]
+                    }
+                ],
+            },
+        };
+
+        const table = new google.visualization.Table(googleTableContainer);
+        table.draw(dataTable, options);
+    }
+}
+
+// Function to calculate the average of a specific column
+function calculateColumnAverage(data, columnName) {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        return 0; // Return a default value or handle the case appropriately
+    }
+
+    const columnValues = data
+        .filter(row => row && typeof row === 'object' && columnName in row)
+        .map(row => parseFloat(row[columnName]) || 0);
+
+    if (columnValues.length === 0) {
+        return 0; // Return a default value or handle the case appropriately
+    }
+
+    const sum = columnValues.reduce((acc, value) => acc + value, 0);
+    return sum / columnValues.length;
+}
+
+
+// Function to get the column index by name
+function getColumnIndex(columnName) {
+    return loadedData.length > 0 ? Object.keys(loadedData[0]).indexOf(columnName) : -1;
+}
+
+// Add sliders for Death and TotalTestResults columns
+const deathSlider = createSlider("death-slider", "Death");
+const totalTestResultsSlider = createSlider("total-test-results-slider", "TotalTestResults");
+
+// Event listener for Death slider change
+deathSlider.addEventListener("input", function () {
+    const threshold = parseFloat(deathSlider.value);
+    updateColorBasedOnSlider("Death", threshold);
+});
+
+// Event listener for TotalTestResults slider change
+totalTestResultsSlider.addEventListener("input", function () {
+    const threshold = parseFloat(totalTestResultsSlider.value);
+    updateColorBasedOnSlider("TotalTestResults", threshold);
+});
+
+// Function to create a slider
+function createSlider(id, label) {
+    const sliderContainer = document.getElementById(id + "-container");
+
+    if (!sliderContainer) {
+        console.error(`Slider container with ID '${id}-container' not found.`);
+        return null; // Return null to handle the error
+    }
+
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.id = id;
+    slider.min = getMinValue(loadedData, label);
+    slider.max = getMaxValue(loadedData, label);
+    slider.value = calculateColumnAverage(loadedData, label);
+
+    try {
+        sliderContainer.appendChild(slider);
+    } catch (error) {
+        console.error("Error appending slider to container:", error.message);
+    }
+
+    return slider;
+}
+
+
+// Function to get the minimum value of a column
+function getMinValue(data, columnName) {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        return 0; // Return a default value or handle the case appropriately
+    }
+
+    const minValues = data
+        .filter(row => row && typeof row === 'object' && columnName in row)
+        .map(row => parseFloat(row[columnName]) || 0);
+
+    if (minValues.length === 0) {
+        return 0; // Return a default value or handle the case appropriately
+    }
+
+    return Math.min(...minValues);
+}
+
+
+// Function to get the maximum value of a column
+function getMaxValue(data, columnName) {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        return 0; // Return a default value or handle the case appropriately
+    }
+
+    const maxValues = data
+        .filter(row => row && typeof row === 'object' && columnName in row)
+        .map(row => parseFloat(row[columnName]) || 0);
+
+    if (maxValues.length === 0) {
+        return 0; // Return a default value or handle the case appropriately
+    }
+
+    return Math.max(...maxValues);
+}
+
+
+// Function to update color based on slider value
+function updateColorBasedOnSlider(columnName, threshold) {
+    const columnAverage = calculateColumnAverage(loadedData, columnName);
+    const cells = document.querySelectorAll(`td[data-col="${columnName}"]`);
+
+    cells.forEach(cell => {
+        const cellValue = parseFloat(cell.textContent);
+        if (!isNaN(cellValue)) {
+            if (cellValue > threshold) {
+                cell.style.color = columnName === "Death" ? "red" : "green";
+            } else {
+                cell.style.color = "black";
+            }
+        }
+    });
+
+    // Update charts based on slider value
+    updateChartsBasedOnSlider(columnName, threshold);
+}
+
+// Function to update charts based on slider value
+function updateChartsBasedOnSlider(columnName, threshold) {
+    if (columnName === "Death") {
+        // Update charts for the Death column
+        // Add your code to update charts accordingly
+    } else if (columnName === "TotalTestResults") {
+        // Update charts for the TotalTestResults column
+        // Add your code to update charts accordingly
+    }
+}
+
 
 
 
@@ -502,52 +730,6 @@ function displayLogoutPopup() {
 const loginToDBMenuItem = document.getElementById("login-to-db");
 loginToDBMenuItem.addEventListener("click", displayLoginPopup);
 
-// Function to display login popup
-function displayLoginPopup() {
-    // Prompt the user for login and password
-    const username = prompt("Enter your login:");
-    const password = prompt("Enter your password:");
-
-    if (username && password) {
-        // Prepare the data to send in the request
-        const data = {
-            userName: username,
-            userPassword: password,
-        };
-
-        // Send an AJAX request to the login.php file
-        fetch("login.php", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(responseData => {
-            if (responseData.success) {
-                // Login successful, store user information and show a welcome message
-                const user = {
-                    uid: responseData.uid,
-                    login: responseData.login,
-                    name: responseData.name,
-                    gender: responseData.gender,
-                };
-
-                // Store user information in sessionStorage
-                sessionStorage.setItem("user", JSON.stringify(user));
-
-                // Display a welcome message in the message area
-                messageArea.textContent = `Welcome, ${user.name}!`;
-            } else {
-                // Login failed, display an error message
-                messageArea.textContent = "Login failed. Please check your credentials.";
-            }
-        })
-        .catch(error => console.error("Error during login:", error));
-    }
-}
-
 
 // Event listener for the "Logout DB" sub-menu
 const logoutDBMenuItem = document.getElementById("logout-db");
@@ -598,6 +780,138 @@ infoMenuItem.addEventListener("click", function () {
     document.body.appendChild(modalDiv);
 });
 
+
+// Event listener for "Load DB Data1" submenu
+const loadDBData1MenuItem = document.getElementById("load-db-data1");
+loadDBData1MenuItem.addEventListener("click", loadDBData1);
+
+
+// Function to load DB Data1
+function loadDBData1() {
+    // Check if the user is logged in
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    if (!user) {
+        console.error("User not logged in");
+        return;
+    }
+
+    // Send an AJAX request to load_vdv_data1.php
+    fetch("load_vdv_data1.php") // Replace with the correct path
+        .then(response => response.json())
+        .then(responseData => {
+            if (responseData.success) {
+                // Data loaded successfully, handle the data as needed
+                console.log("DB Data1 loaded:", responseData.data);
+                // Display data in the Google table
+                displayDataInGoogleTable(responseData.data);
+            } else {
+                // Failed to load data, display an error message
+                console.error("Error loading DB Data1:", responseData.message);
+            }
+        })
+        .catch(error => console.error("Error during DB Data1 request:", error));
+}
+
+// Function to display data in the Google table
+function displayDataInGoogleTable(data) {
+    // Load Google Charts API
+    google.charts.load("current", { packages: ["table"] });
+    google.charts.setOnLoadCallback(drawTable);
+
+    // Callback function to draw the table
+    function drawTable() {
+        // Create the data table
+        const dataTable = new google.visualization.DataTable();
+
+        // Define columns
+        dataTable.addColumn("string", "Location");
+        dataTable.addColumn("string", "Decommissioned");
+        dataTable.addColumn("string", "TaxReturnsFiled");
+        dataTable.addColumn("string", "EstimatedPopulation");
+        dataTable.addColumn("string", "TotalWages");
+        dataTable.addColumn("string", "AvgWages");
+        dataTable.addColumn("string", "City");
+        dataTable.addColumn("string", "State");
+
+        // Populate rows
+        data.forEach(row => {
+            dataTable.addRow([
+                row.Location,
+                row.Decommissioned,
+                row.TaxReturnsFiled,
+                row.EstimatedPopulation,
+                row.TotalWages,
+                row.AvgWages,
+                row.City,
+                row.State
+            ]);
+        });
+
+        // Set table options
+        const tableOptions = {
+            showRowNumber: true,
+            width: "100%",
+            height: "100%"
+            // Add more options as needed
+        };
+
+        // Instantiate and draw the table
+        const table = new google.visualization.Table(document.getElementById("google-table"));
+        table.draw(dataTable, tableOptions);
+    }
+}
+
+
+// Function to display login popup
+function displayLoginPopup() {
+    // Prompt the user for login and password
+    const username = prompt("Enter your login:");
+    const password = prompt("Enter your password:");
+
+    if (username && password) {
+        // Prepare the data to send in the request
+        const data = {
+            userName: username,
+            userPassword: password,
+        };
+
+        // Send an AJAX request to the login.php file
+        fetch("login.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(responseData => {
+            if (responseData.success) {
+                // Login successful, store user information and show a welcome message
+                const user = {
+                    uid: responseData.uid,
+                    login: responseData.login,
+                    name: responseData.name,
+                    gender: responseData.gender,
+                };
+
+                // Store user information in sessionStorage
+                sessionStorage.setItem("user", JSON.stringify(user));
+
+                // Display a welcome message in the message area
+                messageArea.textContent = `Welcome, ${user.name}!`;
+            } else {
+                // Login failed, display an error message
+                messageArea.textContent = "Login failed. Please check your credentials.";
+            }
+        })
+        .catch(error => console.error("Error during login:", error));
+    }
+}
+
+// Replace the following line with code to display the data in the Google table
+// function displayDataInGoogleTable(data) {
+//    // Your code to display data in the Google table
+// }
 
 
 // Function to display user information popup
