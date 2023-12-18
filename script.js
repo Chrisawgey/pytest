@@ -952,10 +952,66 @@ function displayLoginPopup() {
     }
 }
 
+
 // Replace the following line with code to display the data in the Google table
 // function displayDataInGoogleTable(data) {
 //    // Your code to display data in the Google table
 // }
+
+/// Function to open the email pop-up
+function openEmailPopup() {
+    toEmailInput.value = ''; // Clear the input field
+    emailSubjectInput.value = `xxxx's DV preference`; // Update subject with the user's name
+    emailContentInput.value = `User Settings\nAverage of AvgWages: ${calculateColumnAverage(loadedData, 'AvgWages')}`;
+
+    emailPopup.style.display = 'block';
+}
+
+// Function to close the email pop-up
+function closeEmailPopup() {
+    emailPopup.style.display = 'none';
+}
+
+// Function to submit the email
+function submitEmail() {
+    const toEmail = toEmailInput.value;
+    const subject = emailSubjectInput.value;
+    const content = emailContentInput.value;
+
+    // Call your backend API to send the email
+    sendEmail(toEmail, subject, content);
+
+    // Close the email pop-up after submission
+    closeEmailPopup();
+}
+
+// Function to send the email using your backend API
+function sendEmail(toEmail, subject, content) {
+    // Implement your backend logic to send the email
+    // You can use fetch or another method to make an API call
+    fetch('/send-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            to: toEmail,
+            subject: subject,
+            content: content,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Email sent:', data);
+        // You can handle the success response, e.g., display a confirmation message
+        alert('Email sent successfully!');
+    })
+    .catch(error => {
+        console.error('Error sending email:', error);
+        // Handle the error, e.g., display an error message to the user
+        alert('Error sending email. Please try again.');
+    });
+}
 
 
 // Function to display user information popup

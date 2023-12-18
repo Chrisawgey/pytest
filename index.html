@@ -48,12 +48,15 @@
                     </ul>
                 </li>
 
-                <li><a href="#">Setting</a>
-                    <ul class="submenu">
-                        <li id="user-info-menu"><a href="#">User Info</a></li>
+                <!-- Add the "Send Email" button under the "Settings" submenu -->
+                <li>
+                    <a href="#">Settings</a>
+                        <ul class="submenu">
+                            <li id="user-info-menu"><a href="#">User Info</a></li>
+                            <li><a href="#" onclick="openEmailPopup()">Send Email</a></li> <!-- Add this line -->
+                        </ul>
+                    </li>
 
-                    </ul>
-                </li>
                 <li><a href="#">Help</a>
                     <ul class="submenu">
                         <li id="info-menu"><a href="#">Info</a></li>
