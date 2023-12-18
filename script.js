@@ -46,6 +46,33 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Check if CSV data is loaded
+const isCSVLoaded = loadedData && loadedData.length > 0;
+
+// Event listener for the logout button
+const logoutButton = document.getElementById("logout-db");
+logoutButton.addEventListener("click", function () {
+    // Call a function to log the user out of the database
+    // Add your logout logic here (e.g., make an API call)
+
+    // Reload the page after logout
+    location.reload();
+});
+
+// Function to log out the user and refresh the page
+function logoutAndRefresh() {
+    // Add your logout logic here (e.g., make an API call)
+
+    // Reload the page after logout
+    location.reload();
+}
+
+// Check if CSV data is loaded and automatically log out
+if (isCSVLoaded) {
+    // Call the logout function when there is CSV data
+    logoutAndRefresh();
+}
+
 
     //This code attaches an event listener to each radio button, and when a radio button is clicked, it checks the selected graph choice and displays both bar and line charts 
     //accordingly for "Deaths" and "Total Test Results". Adjustments can be made based on your specific requirements.
