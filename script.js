@@ -46,13 +46,54 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Event listener for radio button selection
-    const radioButtons = document.getElementsByName("graph-choice");
-    radioButtons.forEach((radio) => {
-        radio.addEventListener("change", function () {
-            selectedGraph = radio.value;
-        });
+
+    //This code attaches an event listener to each radio button, and when a radio button is clicked, it checks the selected graph choice and displays both bar and line charts 
+    //accordingly for "Deaths" and "Total Test Results". Adjustments can be made based on your specific requirements.
+    // Event listener for radio buttons
+const radioButtons = document.querySelectorAll('input[name="graph-choice"]');
+
+// Event listener for radio buttons
+radioButtons.forEach((radioButton) => {
+    radioButton.addEventListener("click", function () {
+        // Get the selected graph choice
+        const selectedGraphChoice = this.value;
+
+        // Create containers for bar and line charts
+        const barChartContainer = document.getElementById("bar-chart-container");
+        const lineChartContainer = document.getElementById("line-chart-container");
+        const stateChartContainer = document.getElementById("state-chart-container"); // Added State chart container
+
+        // Clear previous chart content
+        barChartContainer.innerHTML = "";
+        lineChartContainer.innerHTML = "";
+        stateChartContainer.innerHTML = ""; // Clear State chart container
+
+        // Display charts based on the selected radio button
+        if (selectedGraphChoice === "Deaths") {
+            displayBarChart(loadedData, selectedGraphChoice, barChartContainer);
+            displayLineChart(loadedData, selectedGraphChoice, lineChartContainer);
+            messageArea.textContent = `Displaying Bar and Line Charts for ${selectedGraphChoice}`;
+            chartErrorMessage.style.display = "none"; // Hide error message
+
+        } else if (selectedGraphChoice === "Total Test Results") {
+            displayBarChartTotalTestResults(loadedData, selectedGraphChoice, barChartContainer);
+            displayLineChartTotalTestResults(loadedData, selectedGraphChoice, lineChartContainer);
+            messageArea.textContent = `Displaying Bar and Line Charts for ${selectedGraphChoice}`;
+            chartErrorMessage.style.display = "none"; // Hide error message
+
+        } else if (selectedGraphChoice === "State") {
+            // Handle the State graph accordingly
+            displayChartForState("Bar", stateChartContainer); // Display a bar chart for State by default
+            displayChartForState("Pie", stateChartContainer); // Display a pie chart for State by default
+            messageArea.textContent = "Displaying Bar and Pie Charts for State";
+            chartErrorMessage.style.display = "none"; // Hide error message
+        }
     });
+});
+
+
+
+
 
     // Event listener for "View" sub-menus
 const viewMenu = document.getElementById("view-menu");
@@ -117,14 +158,6 @@ viewMenu.addEventListener("click", function (event) {
     }
 });
 
-// Function to display Bar or Pie Chart for "State"
-function displayChartForState(choice) {
-    if (choice === "Bar") {
-        displayBarChartState(loadedData, selectedGraph);
-    } else if (choice === "Pie") {
-        displayPieChartState(loadedData, selectedGraph);
-    }
-}
 
  // Function to check if a chart is allowed for the selected choice
     function isChartAllowedForChoice(choice) {
@@ -206,102 +239,142 @@ function getColumnIndex(columnName) {
 
 
     // Function to display Bar Chart for deaths 
-    function displayBarChart(data, selectedGraph) {
-        const chartData = prepareBarChartData(data, selectedGraph);
-        const options = {
-            title: `${selectedGraph} (Bar Chart)`,
-            hAxis: { title: "Date" },
-            vAxis: { title: selectedGraph },
-        };
-
-        chartContainer.style.display = "block"; // Show the chart
-        chartErrorMessage.style.display = "none"; // Hide error message
-
-        const chart = new google.visualization.BarChart(chartContainer);
-        chart.draw(chartData, options);
-    }
-
-    // Function to display Line Chart for deaths 
-    function displayLineChart(data, selectedGraph) {
-        const chartData = prepareLineChartData(data, selectedGraph);
-        const options = {
-            title: `${selectedGraph} (Line Chart)`,
-            hAxis: { title: "Date" },
-            vAxis: { title: selectedGraph },
-        };
-
-        chartContainer.style.display = "block"; // Show the chart
-        chartErrorMessage.style.display = "none"; // Hide error message
-
-        const chart = new google.visualization.LineChart(chartContainer);
-        chart.draw(chartData, options);
-    }
-
-    // Function to display Bar Chart for Total Test Results
-function displayBarChartTotalTestResults(data, selectedGraph) {
-    const chartData = prepareBarChartDataTotalTestResults(data, selectedGraph);
+function displayBarChart(data, selectedGraph, container) {
+    const chartData = prepareBarChartData(data, selectedGraph);
     const options = {
         title: `${selectedGraph} (Bar Chart)`,
         hAxis: { title: "Date" },
         vAxis: { title: selectedGraph },
+        chartArea: { width: '70%', height: '60%' }, // Adjust the width and height as needed
     };
 
-    chartContainer.style.display = "block"; // Show the chart
-    chartErrorMessage.style.display = "none"; // Hide error message
+    // Create a new chart container div
+    const chartContainer = document.createElement("div");
+    chartContainer.style.display = "inline-block"; // Display inline
+    chartContainer.style.width = '600px'; // Adjust the width as needed
+    chartContainer.style.height = '400px'; // Adjust the height as needed
+    container.appendChild(chartContainer);
 
     const chart = new google.visualization.BarChart(chartContainer);
     chart.draw(chartData, options);
 }
 
-// Function to display Bar Chart for State
-function displayBarChartState(data, selectedGraph) {
-    const chartData = prepareBarChartDataState(data, selectedGraph);
+// Function to display Line Chart for deaths 
+function displayLineChart(data, selectedGraph, container) {
+    const chartData = prepareLineChartData(data, selectedGraph);
+    const options = {
+        title: `${selectedGraph} (Line Chart)`,
+        hAxis: { title: "Date" },
+        vAxis: { title: selectedGraph },
+        chartArea: { width: '70%', height: '60%' }, // Adjust the width and height as needed
+    };
+
+    // Create a new chart container div
+    const chartContainer = document.createElement("div");
+    chartContainer.style.display = "inline-block"; // Display inline
+    chartContainer.style.width = '600px'; // Adjust the width as needed
+    chartContainer.style.height = '400px'; // Adjust the height as needed
+    container.appendChild(chartContainer);
+
+    const chart = new google.visualization.LineChart(chartContainer);
+    chart.draw(chartData, options);
+}
+
+
+
+  // Function to display Bar Chart for Total Test Results
+function displayBarChartTotalTestResults(data, selectedGraph, container) {
+    const chartData = prepareBarChartDataTotalTestResults(data, selectedGraph);
     const options = {
         title: `${selectedGraph} (Bar Chart)`,
         hAxis: { title: "Date" },
         vAxis: { title: selectedGraph },
+        chartArea: { width: '70%', height: '60%' }, // Adjust the width and height as needed
     };
 
-    chartContainer.style.display = "block"; // Show the chart
-    chartErrorMessage.style.display = "none"; // Hide error message
+    // Create a new chart container div
+    const chartContainer = document.createElement("div");
+    chartContainer.style.display = "inline-block"; // Display inline
+    chartContainer.style.width = '600px'; // Adjust the width as needed
+    chartContainer.style.height = '400px'; // Adjust the height as needed
+    container.appendChild(chartContainer);
+
+    const chart = new google.visualization.BarChart(chartContainer);
+    chart.draw(chartData, options);
+}
+
+// Function to display Line Chart for Total Test Results
+function displayLineChartTotalTestResults(data, selectedGraph, container) {
+    const chartData = prepareLineChartDataTotalTestResults(data, selectedGraph);
+    const options = {
+        title: `${selectedGraph} (Line Chart)`,
+        hAxis: { title: "Date" },
+        vAxis: { title: selectedGraph },
+        chartArea: { width: '70%', height: '60%' }, // Adjust the width and height as needed
+    };
+
+    // Create a new chart container div
+    const chartContainer = document.createElement("div");
+    chartContainer.style.display = "inline-block"; // Display inline
+    chartContainer.style.width = '600px'; // Adjust the width as needed
+    chartContainer.style.height = '400px'; // Adjust the height as needed
+    container.appendChild(chartContainer);
+
+    const chart = new google.visualization.LineChart(chartContainer);
+    chart.draw(chartData, options);
+}
+
+// Function to display Bar or Pie Chart for "State"
+function displayChartForState(choice, container) {
+    if (choice === "Bar") {
+        displayBarChartState(loadedData, choice, container);
+    } else if (choice === "Pie") {
+        displayPieChartState(loadedData, container);
+    }
+}
+
+// Function to display Bar Chart for State
+function displayBarChartState(data, selectedGraph, container) {
+    const chartData = prepareBarChartDataState(data);
+    const options = {
+        title: `${selectedGraph} (Bar Chart)`,
+        hAxis: { title: "Date" },
+        vAxis: { title: selectedGraph },
+        chartArea: { width: '70%', height: '60%' }, // Adjust the width and height as needed
+    };
+
+    // Create a new chart container div
+    const chartContainer = document.createElement("div");
+    chartContainer.style.display = "inline-block"; // Display inline
+    chartContainer.style.width = '600px'; // Adjust the width as needed
+    chartContainer.style.height = '400px'; // Adjust the height as needed
+    container.appendChild(chartContainer);
 
     const chart = new google.visualization.BarChart(chartContainer);
     chart.draw(chartData, options);
 }
 
 // Function to display Pie Chart for State
-function displayPieChartState(data, selectedGraph) {
+function displayPieChartState(data, container) {
     const chartData = preparePieChartDataState(data);
     const options = {
-        title: `${selectedGraph} (Pie Chart)`,
+        title: "State (Pie Chart)",
         is3D: true, // Enable 3D view
+        chartArea: { width: '70%', height: '60%' }, // Adjust the width and height as needed
     };
 
-    chartContainer.style.display = "block"; // Show the chart
-    chartErrorMessage.style.display = "none"; // Hide error message
+    // Create a new chart container div
+    const chartContainer = document.createElement("div");
+    chartContainer.style.display = "inline-block"; // Display inline
+    chartContainer.style.width = '600px'; // Adjust the width as needed
+    chartContainer.style.height = '400px'; // Adjust the height as needed
+    container.appendChild(chartContainer);
 
     const chart = new google.visualization.PieChart(chartContainer);
     chart.draw(chartData, options);
 }
 
 
-
-
-// Function to display Line Chart for Total Test Results
-function displayLineChartTotalTestResults(data, selectedGraph) {
-    const chartData = prepareLineChartDataTotalTestResults(data, selectedGraph);
-    const options = {
-        title: `${selectedGraph} (Line Chart)`,
-        hAxis: { title: "Date" },
-        vAxis: { title: selectedGraph },
-    };
-
-    chartContainer.style.display = "block"; // Show the chart
-    chartErrorMessage.style.display = "none"; // Hide error message
-
-    const chart = new google.visualization.LineChart(chartContainer);
-    chart.draw(chartData, options);
-}
 
 
     // Helper function to prepare data for Bar Chart (deaths)
@@ -356,10 +429,15 @@ function prepareBarChartDataTotalTestResults(data, selectedGraph) {
     chartData.addColumn("number", "Hospitalized Currently");
     chartData.addColumn("number", "Hospitalized Increase");
 
-    const chartDataArray = data.map((row) => [
+    const filteredData = data.filter(row => {
+        return row.hospitalizedCurrently !== null && row.hospitalizedIncrease !== null &&
+               !isNaN(row.hospitalizedCurrently) && !isNaN(row.hospitalizedIncrease);
+    });
+
+    const chartDataArray = filteredData.map((row) => [
         row.date,
-        row.hospitalizedCurrently,
-        row.hospitalizedIncrease,
+        parseFloat(row.hospitalizedCurrently),
+        parseFloat(row.hospitalizedIncrease),
     ]);
 
     chartData.addRows(chartDataArray);
@@ -374,16 +452,22 @@ function prepareLineChartDataTotalTestResults(data, selectedGraph) {
     chartData.addColumn("number", "Hospitalized Currently");
     chartData.addColumn("number", "Hospitalized Increase");
 
-    const chartDataArray = data.map((row) => [
+    const filteredData = data.filter(row => {
+        return row.hospitalizedCurrently !== null && row.hospitalizedIncrease !== null &&
+               !isNaN(row.hospitalizedCurrently) && !isNaN(row.hospitalizedIncrease);
+    });
+
+    const chartDataArray = filteredData.map((row) => [
         row.date,
-        row.hospitalizedCurrently,
-        row.hospitalizedIncrease,
+        parseFloat(row.hospitalizedCurrently),
+        parseFloat(row.hospitalizedIncrease),
     ]);
 
     chartData.addRows(chartDataArray);
 
     return chartData;
 }
+
 
 function prepareBarChartDataState(data) {
     const chartData = new google.visualization.DataTable();
@@ -692,213 +776,7 @@ exitMenuItem.addEventListener("click", handleExit);
 //project 2 cont
 
 
-//Adding new constants for the loaddata -> getting the element of load-db(1-2) from the html button
-    const loadData1Button = document.getElementById("load-db-data1");
-    const loadData2Button = document.getElementById("load-db-data2");
-    const loginToDBButton = document.getElementById("login-to-db");
-
-    // Event listener for "Load DB Data1" submenu click
-    loadData1Button.addEventListener("click", function () {
-        fetchDataFromDatabase("load_vdv_data1.php");
-    });
-
-    // Event listener for "Load DB Data2" submenu click
-    loadData2Button.addEventListener("click", function () {
-        fetchDataFromDatabase("load_vdv_data2.php");
-    });
-
-    // Event listener for "Login to DB" submenu click
-    loginToDBButton.addEventListener("click", function () {
-        showLoginSection();
-    });
-
-    // Function to fetch data from the database
-    function fetchDataFromDatabase(url) {
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log("Loaded DB Data:", data.data);
-                    displayGoogleTable(data.data);
-                    // Notify the user of database access
-                    notifyDatabaseAccess();
-                } else {
-                    console.error("Failed to load DB Data:", data.message);
-                }
-            })
-            .catch(error => console.error("Error loading DB Data:", error));
-    }
-
-    // Function to notify the user of database access
-    function notifyDatabaseAccess() {
-        alert("You now have access to the database!");
-    }
-
-    // Function to show the login section
-    function showLoginSection() {
-        const loginSection = document.getElementById("login-section");
-        loginSection.style.display = "block";
-    }
-
-    // Assuming this function is called after a successful login
-    function handleLoginSuccess(response) {
-        // Login successful, store user information and show a welcome message
-        sessionStorage.setItem("user", JSON.stringify(response));
-        messageArea.textContent = `Welcome, ${response.name}!`;
-
-        // Notify the user of database access
-        notifyDatabaseAccess();
-    }
-
-
-    //I've added an event listener to each radio button in the document.querySelectorAll('input[name="graph-choice"]') loop. This listener triggers the updateCharts function when a radio button is clicked.
-    //The updateCharts function takes the selected radio button's value and uses a switch statement to determine which charts to display based on the selected option
-
-
-    // Event listener for radio buttons
-document.querySelectorAll('input[name="graph-choice"]').forEach(function (radio) {
-    radio.addEventListener('click', function () {
-        updateCharts(this.value);
-    });
 });
 
-// Placeholder functions for displaying charts
-function displayBarChart(columnName, chartTitle) {
-    // Implement your code to display Bar Chart using the specified column
-    // Replace the following line with your actual code
-    console.log(`Displaying Bar Chart for ${chartTitle} using ${columnName}`);
-}
-
-function displayLineChart(columnName, chartTitle) {
-    // Implement your code to display Line Chart using the specified column
-    // Replace the following line with your actual code
-    console.log(`Displaying Line Chart for ${chartTitle} using ${columnName}`);
-}
-
-function displayPieChart(columnName, chartTitle) {
-    // Implement your code to display Pie Chart using the specified column
-    // Replace the following line with your actual code
-    console.log(`Displaying Pie Chart for ${chartTitle} using ${columnName}`);
-}
-
-// Function to update charts based on the selected radio button
-function updateCharts(selectedValue) {
-    switch (selectedValue) {
-        case 'Deaths':
-            // Display Bar and Line charts for Deaths
-            displayBarChart('death', 'Deaths');
-            displayLineChart('death', 'Deaths');
-            break;
-        case 'Total Test Results':
-            // Display Bar and Line charts for Total Test Results
-            displayBarChart('totalTestResults', 'Total Test Results');
-            displayLineChart('totalTestResults', 'Total Test Results');
-            break;
-        case 'State':
-            // Display Bar and Pie charts for State
-            displayBarChart('state', 'State');
-            displayPieChart('state', 'State');
-            break;
-        default:
-            // Handle other cases if needed
-            break;
-    }
-}
-
-
-// Get the Death column slider element
-const deathSlider = document.getElementById('death-slider');
-
-// Set the initial position of the Death column slider to its average value
-const deathColumn = getColumnData('death'); // Replace 'Deaths' with the actual column header
-const deathColumnAverage = calculateAverage(deathColumn);
-deathSlider.value = deathColumnAverage;
-
-// Event listener for the Death column slider
-deathSlider.addEventListener('input', function () {
-    updateColorsBasedOnSlider();
-});
-
-// Function to update colors based on the Death column slider position
-function updateColorsBasedOnSlider() {
-    const deathSliderValue = parseFloat(deathSlider.value);
-
-    // Update the color of Death column cells
-    updateDeathColumnColor(deathSliderValue);
-
-    // Update colors in all charts (implement this based on your chart library)
-    updateChartColors(deathSliderValue);
-}
-
-// Function to update the color of Death column cells
-function updateDeathColumnColor(sliderValue) {
-    const deathColumnCells = document.querySelectorAll('#google-table tbody td:nth-child(DEATH_COLUMN_INDEX)'); // Replace DEATH_COLUMN_INDEX with the actual column index
-    deathColumnCells.forEach(function (cell) {
-        const cellValue = parseFloat(cell.textContent);
-        cell.style.color = cellValue > sliderValue ? 'red' : 'black';
-    });
-}
-
-// Function to update colors in all charts (you need to implement this based on your chart library)
-function updateChartColors(sliderValue) {
-    // Implement your code to update colors in all charts
-    // You may need to interact with your chart library here
-    console.log('Updating chart colors based on slider value:', sliderValue);
-}
-
-// Helper function to get data for a specific column
-function getColumnData(columnHeader) {
-    // Implement this function to get data for the specified column
-    // You may need to interact with your data structure (e.g., table or array)
-    // Replace the following line with your actual code
-    return [/* Your column data array here */];
-}
-
-// Helper function to calculate the average of an array
-function calculateAverage(array) {
-    // Implement this function to calculate the average of the array
-    // Replace the following line with your actual code
-    return array.reduce((sum, value) => sum + value, 0) / array.length;
-}
-
-
-// Get the TotalTestResults column slider element
-const totalTestResultsSlider = document.getElementById('total-test-results-slider');
-
-// Set the initial position of the TotalTestResults column slider to its average value
-const totalTestResultsColumn = getColumnData('Total Test Results'); // Replace 'Total Test Results' with the actual column header
-const totalTestResultsColumnAverage = calculateAverage(totalTestResultsColumn);
-totalTestResultsSlider.value = totalTestResultsColumnAverage;
-
-// Event listener for the TotalTestResults column slider
-totalTestResultsSlider.addEventListener('input', function () {
-    updateColorsBasedOnTotalTestResultsSlider();
-});
-
-// Function to update colors based on the TotalTestResults column slider position
-function updateColorsBasedOnTotalTestResultsSlider() {
-    const totalTestResultsSliderValue = parseFloat(totalTestResultsSlider.value);
-
-    // Update the color of TotalTestResults column cells
-    updateTotalTestResultsColumnColor(totalTestResultsSliderValue);
-
-    // Update colors in all charts (implement this based on your chart library)
-    updateChartColors(totalTestResultsSliderValue);
-}
-
-// Function to update the color of TotalTestResults column cells
-function updateTotalTestResultsColumnColor(sliderValue) {
-    const totalTestResultsColumnCells = document.querySelectorAll('#google-table tbody td:nth-child(TOTAL_TEST_RESULTS_COLUMN_INDEX)'); // Replace TOTAL_TEST_RESULTS_COLUMN_INDEX with the actual column index
-    totalTestResultsColumnCells.forEach(function (cell) {
-        const cellValue = parseFloat(cell.textContent);
-        cell.style.color = cellValue > sliderValue ? 'green' : 'black';
-    });
-}
-
-});
-
-
-
-//project 2 cont
 
 

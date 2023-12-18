@@ -212,3 +212,16 @@ nav a:hover {
 #death-slider-container label {
     margin-right: 10px;
 }
+
+/* Add styling for the chart containers */
+#bar-chart-container,
+#line-chart-container {
+    display: inline-block;
+    width: 48%; /* Adjust the width as needed */
+    vertical-align: top; /* Align the charts to the top */
+}
+
+/* Add a margin to separate the charts */
+#bar-chart-container {
+    margin-right: 2%;
+}

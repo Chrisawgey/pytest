@@ -67,10 +67,32 @@
     </header>
     <main>
         <section id="graph-display">
-            <div id="chart-container"></div>
-            <div id="no-data-message" style="display: none;">No data loaded. Please load data first.</div>
-            <div id="chart-error-message"></div>
+            <!-- Bar Chart Container -->
+            <div id="bar-chart-container">
+                <div id="chart-container" class="chart"></div>
+                <div id="no-data-message" style="display: none;">No data loaded. Please load data first.</div>
+                <div id="chart-error-message"></div>
+            </div>
+
+            <!-- Line Chart Container -->
+            <div id="line-chart-container">
+                <div id="line-chart-container-inner">
+                    <div id="line-chart-container" class="chart"></div>
+                    <div id="no-data-message-line" style="display: none;">No data loaded. Please load data first.</div>
+                    <div id="chart-error-message-line"></div>
+                </div>
+            </div>
+
+            <!-- State Chart Container -->
+            <div id="state-chart-container">
+         <div id="state-chart-inner" class="chart"></div>
+         <div id="no-data-message-state" style="display: none;">No data loaded. Please load data first.</div>
+         <div id="chart-error-message-state"></div>
+             </div>
+
         </section>
+
+        
         
         
         <section id="data-selection">
