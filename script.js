@@ -558,54 +558,33 @@ clientInfoMenuItem.addEventListener("click", function () {
 
 
 
-// Function to display a styled login popup
+// Function to display a login popup
 function displayLoginPopup() {
-    var popup = document.getElementById("login-popup");
-    popup.style.display = "block";
-}
-
-// Function to close the login popup
-function closePopup() {
-    var popup = document.getElementById("login-popup");
-    popup.style.display = "none";
-}
-
-// Function to handle login submission
-function submitLogin() {
-    var usernameInput = document.getElementById("popup-username");
-    var passwordInput = document.getElementById("popup-password");
-
-    var username = usernameInput.value;
-    var password = passwordInput.value;
+    const username = prompt("Enter your login:");
+    const password = prompt("Enter your password:");
 
     if (username && password) {
         // Prepare the data to send in the request
-        var data = {
+        const data = {
             userName: username,
             userPassword: password,
         };
 
         // Send an AJAX request to the login.php file
-        var xhr = new XMLHttpRequest();
+        const xhr = new XMLHttpRequest();
         xhr.open("POST", "login.php", true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
 
-                    if (response.success) {
-                        // Login successful, store user information and show a welcome message
-                        sessionStorage.setItem("user", JSON.stringify(response));
-                        showMessage(`Welcome, ${response.name}!`);
-                        closePopup();
-                    } else {
-                        // Login failed, display an error message
-                        showMessage("Login failed. Please check your credentials.");
-                    }
+                if (response.success) {
+                    // Login successful, store user information and show a welcome message
+                    sessionStorage.setItem("user", JSON.stringify(response));
+                    messageArea.textContent = `Welcome, ${response.name}!`;
                 } else {
-                    // Handle other HTTP status codes (e.g., 404, 500)
-                    showMessage("Error: Unable to communicate with the server.");
+                    // Login failed, display an error message
+                    messageArea.textContent = "Login failed. Please check your credentials.";
                 }
             }
         };
@@ -613,20 +592,6 @@ function submitLogin() {
         xhr.send(JSON.stringify(data));
     }
 }
-
-// Function to display messages in the message area
-function showMessage(message) {
-    var messageArea = document.getElementById("message-area");
-    messageArea.textContent = message;
-}
-
-
-// Function to display messages in the message area
-function showMessage(message) {
-    var messageArea = document.getElementById("message-area");
-    messageArea.textContent = message;
-}
-
 
 // Function to display a confirmation popup for logout
 function displayLogoutPopup() {
