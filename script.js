@@ -779,6 +779,3 @@ exitMenuItem.addEventListener("click", handleExit);
 
 
 });
-
-
-
