@@ -98,6 +98,7 @@ radioButtons.forEach((radioButton) => {
     // Event listener for "View" sub-menus
 const viewMenu = document.getElementById("view-menu");
 
+
 viewMenu.addEventListener("click", function (event) {
     if (event.target.tagName === "A" && selectedGraph) {
         const choice = event.target.textContent;
@@ -657,6 +658,34 @@ function displayLoginPopup() {
 const logoutDBMenuItem = document.getElementById("logout-db");
 logoutDBMenuItem.addEventListener("click", displayLogoutPopup);
 
+
+// Function to load data from the database
+function loadDataFromDatabase(viewName) {
+    const username = prompt("Enter your username:");
+    const password = prompt("Enter your password:");
+
+    // Use AJAX, Fetch API, or another method to send a request to your server with the credentials and viewName
+    // Example using Fetch API:
+    fetch(`your-server-endpoint?username=${username}&password=${password}&view=${viewName}`)
+        .then(response => response.json())
+        .then(data => {
+            // Display the retrieved data in the Google table
+            displayGoogleTable(data);
+        })
+        .catch(error => {
+            console.error("Error loading data from the database:", error);
+        });
+}
+
+// Event listener for "Load DB Data1" button
+document.getElementById("load-db-data1").addEventListener("click", function () {
+    loadDataFromDatabase('vDV_data1');
+});
+
+// Event listener for "Load DB Data2" button
+document.getElementById("load-db-data2").addEventListener("click", function () {
+    loadDataFromDatabase('vDV_Data2');
+});
 
 
 
