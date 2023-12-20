@@ -958,10 +958,12 @@ function displayLoginPopup() {
 //    // Your code to display data in the Google table
 // }
 
-/// Function to open the email pop-up
+// Add these JavaScript functions to your existing script
+
+// Function to open the email pop-up
 function openEmailPopup() {
     toEmailInput.value = ''; // Clear the input field
-    emailSubjectInput.value = `xxxx's DV preference`; // Update subject with the user's name
+    emailSubjectInput.value = `xxxx's DV preference`; // Update subject with user's name
     emailContentInput.value = `User Settings\nAverage of AvgWages: ${calculateColumnAverage(loadedData, 'AvgWages')}`;
 
     emailPopup.style.display = 'block';
@@ -986,7 +988,7 @@ function submitEmail() {
 }
 
 // Function to send the email using your backend API
-function sendEmail(toEmail, subject, content) {
+function opensendEmail(toEmail, subject, content) {
     // Implement your backend logic to send the email
     // You can use fetch or another method to make an API call
     fetch('/send-email', {
@@ -1011,6 +1013,14 @@ function sendEmail(toEmail, subject, content) {
         // Handle the error, e.g., display an error message to the user
         alert('Error sending email. Please try again.');
     });
+}
+
+// Function to calculate the average of a specific column
+function calculateColumnAverage(data, columnName) {
+    // Implement your logic to calculate the average
+    // This function should be similar to the existing calculateColumnAverage function
+    // You can reuse or modify the existing function based on your needs
+    // ...
 }
 
 
